@@ -1,6 +1,16 @@
 import Decimal from "decimal.js";
 import { describe, expect, it } from "vitest";
-import { configurationSchema, pricingSettingsSchema } from "./validation";
+import {
+  configurationSchema,
+  currenciesCategorySchema,
+  greenCoffeeCategorySchema,
+  laborCategorySchema,
+  overheadMarginCategorySchema,
+  packagingCategorySchema,
+  pricingSettingsSchema,
+  roastingCategorySchema,
+  SETTINGS_CATEGORIES,
+} from "./validation";
 
 // Reference settings from the spec, as they arrive from a form or the database.
 function validSettings() {
@@ -225,5 +235,122 @@ describe("configurationSchema", () => {
     expect(configurationErrors([field], "unknown")).toEqual([
       { path: [field], message },
     ]);
+  });
+});
+
+describe("settings category schemas", () => {
+  it("greenCoffeeCategorySchema accepts only greenCoffeeUsdPerKg", () => {
+    const result = greenCoffeeCategorySchema.parse({
+      greenCoffeeUsdPerKg: validSettings().greenCoffeeUsdPerKg,
+    });
+
+    expect(result.greenCoffeeUsdPerKg["kenya-nyeri"]).toEqual(
+      new Decimal("9.60"),
+    );
+    expect(
+      greenCoffeeCategorySchema.safeParse({
+        greenCoffeeUsdPerKg: {
+          ...validSettings().greenCoffeeUsdPerKg,
+          "kenya-nyeri": "-1",
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("roastingCategorySchema accepts roastProfiles and roasterCapacityKg", () => {
+    const settings = validSettings();
+    const result = roastingCategorySchema.parse({
+      roastProfiles: settings.roastProfiles,
+      roasterCapacityKg: settings.roasterCapacityKg,
+    });
+
+    expect(result.roasterCapacityKg).toEqual(new Decimal("15"));
+    expect(
+      roastingCategorySchema.safeParse({
+        roastProfiles: settings.roastProfiles,
+        roasterCapacityKg: "0",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("packagingCategorySchema accepts cost and time per bag size, without weight", () => {
+    const settings = validSettings();
+    const result = packagingCategorySchema.parse({
+      bagSizes: {
+        "250g": {
+          packagingCostCad: settings.bagSizes["250g"].packagingCostCad,
+          packingMinutes: settings.bagSizes["250g"].packingMinutes,
+        },
+        "1kg": {
+          packagingCostCad: settings.bagSizes["1kg"].packagingCostCad,
+          packingMinutes: settings.bagSizes["1kg"].packingMinutes,
+        },
+        "5kg": {
+          packagingCostCad: settings.bagSizes["5kg"].packagingCostCad,
+          packingMinutes: settings.bagSizes["5kg"].packingMinutes,
+        },
+      },
+    });
+
+    expect(result.bagSizes["1kg"].packagingCostCad).toEqual(
+      new Decimal("1.60"),
+    );
+    expect("weightKg" in result.bagSizes["1kg"]).toBe(false);
+    expect(
+      packagingCategorySchema.safeParse({
+        bagSizes: {
+          "250g": { packagingCostCad: "-1", packingMinutes: "0.5" },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("laborCategorySchema accepts hourlyRatesCad and grindMinutesPerKg", () => {
+    const settings = validSettings();
+    const result = laborCategorySchema.parse({
+      hourlyRatesCad: settings.hourlyRatesCad,
+      grindMinutesPerKg: settings.grindMinutesPerKg,
+    });
+
+    expect(result.hourlyRatesCad.roasting).toEqual(new Decimal("32"));
+    expect(
+      laborCategorySchema.safeParse({
+        hourlyRatesCad: { ...settings.hourlyRatesCad, roasting: "-1" },
+        grindMinutesPerKg: settings.grindMinutesPerKg,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("overheadMarginCategorySchema accepts overheadRate and marginRate", () => {
+    const result = overheadMarginCategorySchema.parse({
+      overheadRate: "0.15",
+      marginRate: "0.35",
+    });
+
+    expect(result.overheadRate).toEqual(new Decimal("0.15"));
+    expect(
+      overheadMarginCategorySchema.safeParse({
+        overheadRate: "1",
+        marginRate: "0.35",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("currenciesCategorySchema accepts exchangeRatesCad", () => {
+    const settings = validSettings();
+    const result = currenciesCategorySchema.parse({
+      exchangeRatesCad: settings.exchangeRatesCad,
+    });
+
+    expect(result.exchangeRatesCad.USD).toEqual(new Decimal("1.36"));
+    expect(
+      currenciesCategorySchema.safeParse({
+        exchangeRatesCad: { ...settings.exchangeRatesCad, USD: "0" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("SETTINGS_CATEGORIES lists each category once", () => {
+    expect(new Set(SETTINGS_CATEGORIES).size).toBe(SETTINGS_CATEGORIES.length);
   });
 });

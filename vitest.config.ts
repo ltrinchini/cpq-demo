@@ -10,6 +10,10 @@ export default defineConfig({
   test: {
     environment: "node",
     passWithNoTests: true,
+    // Integration tests share one real Postgres database (`lib/db/*.test.ts`,
+    // `lib/actions.test.ts`) and each wipes the visitors table in
+    // `beforeEach`: file-level parallelism would let them race each other.
+    fileParallelism: false,
     coverage: {
       enabled: true,
       provider: "v8",

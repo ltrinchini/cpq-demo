@@ -88,6 +88,58 @@ export const pricingSettingsSchema = z.object({
   ),
 }) satisfies z.ZodType<PricingSettings>;
 
+/**
+ * Settings grouped as in the `/settings` page (`docs/design.md`, "Settings").
+ * Each schema below validates only the fields of its category, so a
+ * category form can be saved on its own; reused on the client for inline
+ * validation and on the server by the `saveSettingsCategory` Server Action
+ * (`lib/actions.ts`), which merges the validated data into the visitor's
+ * current settings.
+ */
+export const SETTINGS_CATEGORIES = [
+  "greenCoffee",
+  "roasting",
+  "packaging",
+  "labor",
+  "overheadMargin",
+  "currencies",
+] as const;
+export type SettingsCategory = (typeof SETTINGS_CATEGORIES)[number];
+
+export const greenCoffeeCategorySchema = pricingSettingsSchema.pick({
+  greenCoffeeUsdPerKg: true,
+});
+
+export const roastingCategorySchema = pricingSettingsSchema.pick({
+  roastProfiles: true,
+  roasterCapacityKg: true,
+});
+
+/** Bag weight is fixed by the bag size and excluded on purpose: not editable. */
+export const packagingCategorySchema = z.object({
+  bagSizes: z.record(
+    z.enum(BAG_SIZES),
+    z.object({
+      packagingCostCad: nonNegative("Packaging cost"),
+      packingMinutes: nonNegative("Packing time"),
+    }),
+  ),
+});
+
+export const laborCategorySchema = pricingSettingsSchema.pick({
+  hourlyRatesCad: true,
+  grindMinutesPerKg: true,
+});
+
+export const overheadMarginCategorySchema = pricingSettingsSchema.pick({
+  overheadRate: true,
+  marginRate: true,
+});
+
+export const currenciesCategorySchema = pricingSettingsSchema.pick({
+  exchangeRatesCad: true,
+});
+
 export const configurationSchema = z.object({
   originId: z.enum(ORIGINS, { error: "Choose a coffee from the list" }),
   roast: z.enum(ROAST_PROFILES, {

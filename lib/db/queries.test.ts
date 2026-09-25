@@ -9,6 +9,7 @@ import {
   purgeInactiveSandboxes,
   resetSettings,
   touchVisitorActivity,
+  updateSettings,
 } from "./queries";
 import { quotes, settings, visitors } from "./schema";
 import { defaultSettings } from "./seed";
@@ -145,6 +146,56 @@ describe("resetSettings", () => {
       .where(eq(quotes.visitorId, visitorId));
 
     await resetSettings(visitorId);
+
+    const after = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(after).toEqual(before);
+  });
+});
+
+describe("updateSettings", () => {
+  it("persists the given settings for an existing sandbox", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    const newSettings = {
+      ...defaultSettings(),
+      overheadRate: new Decimal("0.2"),
+    };
+
+    await updateSettings(visitorId, newSettings);
+
+    const result = await getSettings(visitorId);
+    expect(result.overheadRate.toString()).toBe("0.2");
+  });
+
+  it("creates the sandbox for a visitor with none yet", async () => {
+    const visitorId = randomUUID();
+    const newSettings = {
+      ...defaultSettings(),
+      marginRate: new Decimal("0.4"),
+    };
+
+    await updateSettings(visitorId, newSettings);
+
+    const result = await getSettings(visitorId);
+    expect(result.marginRate.toString()).toBe("0.4");
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeDefined();
+  });
+
+  it("does not touch the visitor's quotes", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    const before = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+
+    await updateSettings(visitorId, defaultSettings());
 
     const after = await db
       .select()

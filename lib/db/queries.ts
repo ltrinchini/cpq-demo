@@ -46,17 +46,38 @@ export async function ensureSandbox(visitorId: string): Promise<void> {
 }
 
 /**
- * Restores the visitor's settings to their defaults. Never touches quotes:
- * a quote is frozen at save time and keeps its own settings snapshot, so
- * resetting never changes one. Creates the sandbox first if it doesn't
- * exist yet, so this always leaves a settings row at the defaults.
+ * Writes the visitor's settings. Creates the sandbox first if it doesn't
+ * exist yet, so this always leaves a settings row with the given value.
  */
-export async function resetSettings(visitorId: string): Promise<void> {
+async function writeSettings(
+  visitorId: string,
+  newSettings: PricingSettings,
+): Promise<void> {
   await ensureSandbox(visitorId);
   await db
     .update(settings)
-    .set({ settings: defaultSettings(), updatedAt: new Date() })
+    .set({ settings: newSettings, updatedAt: new Date() })
     .where(eq(settings.visitorId, visitorId));
+}
+
+/**
+ * Restores the visitor's settings to their defaults. Never touches quotes:
+ * a quote is frozen at save time and keeps its own settings snapshot, so
+ * resetting never changes one.
+ */
+export async function resetSettings(visitorId: string): Promise<void> {
+  await writeSettings(visitorId, defaultSettings());
+}
+
+/**
+ * Saves the visitor's settings as given (e.g. after merging a validated
+ * settings category). Same creation-on-write behaviour as `resetSettings`.
+ */
+export async function updateSettings(
+  visitorId: string,
+  newSettings: PricingSettings,
+): Promise<void> {
+  await writeSettings(visitorId, newSettings);
 }
 
 /**
