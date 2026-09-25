@@ -11,7 +11,7 @@
 - [x] 4. Green coffee: roasted kg, green coffee kg, cost in CAD. Tests.
 - [x] 5. Packaging: bag cost. Tests.
 - [x] 6. Labor: batches (ceiling), roasting by profile, grinding, packing. Tests, including batch edge cases.
-- [ ] 7. Overhead, total cost, selling price, equivalent markup. Tests.
+- [x] 7. Overhead, total cost, selling price, equivalent markup. Tests.
 - [ ] 8. Conversion and rounding: unit price, total, price per kg, rounded lines, margin absorbing the difference. Tests in all four currencies and for half-up rounding.
 - [ ] 9. `calculatePrice()` in `lib/pricing/index.ts`: assemble the result with `details`. Test the spec's reference example in CAD and USD.
 - [ ] 10. Final check: 100% coverage, `npx tsc --noEmit` and `npm run lint` with no errors.
