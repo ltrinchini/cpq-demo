@@ -8,7 +8,7 @@ Rules reference: `docs/project.md`, sections "Pricing rules", "Rounding", "Bound
 
 ## Inputs
 
-**`PricingSettings`** (visitor settings, all editable)
+**`PricingSettings`** (visitor settings, all editable except bag weight, which is fixed by the bag size)
 
 | Setting            | Key                                             | Unit                            |
 | ------------------ | ----------------------------------------------- | ------------------------------- |

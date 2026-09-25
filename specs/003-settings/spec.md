@@ -21,7 +21,7 @@ Let the visitor edit every value that affects the price, and go back to the demo
 
 ## Acceptance criteria
 
-- Every `PricingSettings` value is editable, and nothing else.
+- Every `PricingSettings` value is editable except bag weight (fixed by the bag size), and nothing else.
 - An out-of-bounds value is rejected with a message that says what to fix.
 - A change is immediately visible in the configurator.
 - The screen is checked at 360, 390, 768 and 1280 px.
