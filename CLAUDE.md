@@ -26,6 +26,7 @@ Feature order: see `docs/roadmap.md`.
   - `npm run db:generate`: generate a migration after changing `lib/db/schema.ts`
   - `npm run db:migrate`: apply migrations
   - `npm run db:seed`: load demo data
+  - A local Postgres server is already running on port 5432 for development — `DATABASE_URL` in `.env` points to it. Never use `docker-compose.yml` / `docker run` to get a database for local dev or to run tests: it's deployment-only and exposes no port to the host.
 
 ## Architecture
 
