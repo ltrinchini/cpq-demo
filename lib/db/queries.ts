@@ -45,6 +45,20 @@ export async function ensureSandbox(visitorId: string): Promise<void> {
 }
 
 /**
+ * Restores the visitor's settings to their defaults. Never touches quotes:
+ * a quote is frozen at save time and keeps its own settings snapshot, so
+ * resetting never changes one. Creates the sandbox first if it doesn't
+ * exist yet, so this always leaves a settings row at the defaults.
+ */
+export async function resetSettings(visitorId: string): Promise<void> {
+  await ensureSandbox(visitorId);
+  await db
+    .update(settings)
+    .set({ settings: defaultSettings(), updatedAt: new Date() })
+    .where(eq(settings.visitorId, visitorId));
+}
+
+/**
  * Marks the visitor as active today, at most once a day. A visitor with no
  * sandbox yet matches nothing and stays that way: this never creates a row.
  */

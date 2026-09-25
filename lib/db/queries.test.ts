@@ -3,7 +3,12 @@ import Decimal from "decimal.js";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "./client";
-import { ensureSandbox, getSettings, touchVisitorActivity } from "./queries";
+import {
+  ensureSandbox,
+  getSettings,
+  resetSettings,
+  touchVisitorActivity,
+} from "./queries";
 import { quotes, settings, visitors } from "./schema";
 import { defaultSettings } from "./seed";
 
@@ -99,6 +104,52 @@ describe("ensureSandbox", () => {
       .from(quotes)
       .where(eq(quotes.visitorId, visitorId));
     expect(quoteRows).toHaveLength(1);
+  });
+});
+
+describe("resetSettings", () => {
+  it("restores a customized settings row to the defaults", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    await db
+      .update(settings)
+      .set({
+        settings: { ...defaultSettings(), overheadRate: new Decimal("0.5") },
+      })
+      .where(eq(settings.visitorId, visitorId));
+
+    await resetSettings(visitorId);
+
+    expect(await getSettings(visitorId)).toEqual(defaultSettings());
+  });
+
+  it("creates the sandbox at the defaults for a visitor with none yet", async () => {
+    const visitorId = randomUUID();
+
+    await resetSettings(visitorId);
+
+    expect(await getSettings(visitorId)).toEqual(defaultSettings());
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeDefined();
+  });
+
+  it("does not touch the visitor's quotes", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    const before = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+
+    await resetSettings(visitorId);
+
+    const after = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(after).toEqual(before);
   });
 });
 
