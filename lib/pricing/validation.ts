@@ -86,6 +86,11 @@ export const pricingSettingsSchema = z.object({
     z.enum(CURRENCIES).exclude(["CAD"]),
     positive("Exchange rate"),
   ),
+  quoteValidityDays: z.coerce
+    .number({ error: "Quote validity must be a number" })
+    .int({ error: "Quote validity must be a whole number of days" })
+    .min(1, { error: "Quote validity must be at least 1 day" })
+    .max(365, { error: "Quote validity must be 365 days or less" }),
 }) satisfies z.ZodType<PricingSettings>;
 
 /**
@@ -103,6 +108,7 @@ export const SETTINGS_CATEGORIES = [
   "labor",
   "overheadMargin",
   "currencies",
+  "quotes",
 ] as const;
 export type SettingsCategory = (typeof SETTINGS_CATEGORIES)[number];
 
@@ -138,6 +144,10 @@ export const overheadMarginCategorySchema = pricingSettingsSchema.pick({
 
 export const currenciesCategorySchema = pricingSettingsSchema.pick({
   exchangeRatesCad: true,
+});
+
+export const quotesCategorySchema = pricingSettingsSchema.pick({
+  quoteValidityDays: true,
 });
 
 export const configurationSchema = z.object({

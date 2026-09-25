@@ -70,6 +70,20 @@ describe("saveSettingsCategory", () => {
     );
   });
 
+  it("saves the quotes category", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveSettingsCategory("quotes", {
+      quoteValidityDays: "45",
+    });
+
+    expect(result).toEqual({ success: true });
+    const settings = await getSettings(visitorId);
+    expect(settings.quoteValidityDays).toBe(45);
+    expect(settings.overheadRate).toEqual(defaultSettings().overheadRate);
+  });
+
   it("creates the sandbox on the visitor's first saved category", async () => {
     const visitorId = randomUUID();
     await mockVisitorCookie(visitorId);

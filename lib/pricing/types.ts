@@ -65,6 +65,8 @@ export interface PricingSettings {
   marginRate: Decimal;
   /** CAD per 1 unit of the foreign currency. */
   exchangeRatesCad: Record<ForeignCurrency, Decimal>;
+  /** Days a saved quote stays valid from its creation date. */
+  quoteValidityDays: number;
 }
 
 export interface Configuration {

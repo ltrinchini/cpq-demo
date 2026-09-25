@@ -7,6 +7,9 @@ import type {
   PricingSettings,
 } from "@/lib/pricing/types";
 
+/** Quote validity, in days from its creation date. */
+export const QUOTE_VALIDITY_DAYS = 30;
+
 /**
  * Default settings for a new sandbox: fictional but realistic rates,
  * identical to the reference values in specs/001-pricing-engine/spec.md.
@@ -51,6 +54,7 @@ export function defaultSettings(): PricingSettings {
     overheadRate: d("0.15"),
     marginRate: d("0.35"),
     exchangeRatesCad: { USD: d("1.36"), EUR: d("1.50"), GBP: d("1.72") },
+    quoteValidityDays: QUOTE_VALIDITY_DAYS,
   };
 }
 
@@ -80,9 +84,6 @@ export const DEMO_CUSTOMER_NAMES = [
   "The Corner Table",
   "Birchwood Coffee Co.",
 ] as const;
-
-/** Quote validity, in days from its creation date. */
-export const QUOTE_VALIDITY_DAYS = 30;
 
 /** `Q-YYMMDD-XXXX`: creation date (America/Toronto) and daily counter. */
 function quoteNumber(createdAt: Date, counter: number): string {

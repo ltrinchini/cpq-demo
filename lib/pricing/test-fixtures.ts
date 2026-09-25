@@ -41,6 +41,7 @@ export function referenceSettings(): PricingSettings {
     overheadRate: d("0.15"),
     marginRate: d("0.35"),
     exchangeRatesCad: { USD: d("1.36"), EUR: d("1.50"), GBP: d("1.72") },
+    quoteValidityDays: 30,
   };
 }
 

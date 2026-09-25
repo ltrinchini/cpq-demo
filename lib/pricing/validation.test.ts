@@ -8,6 +8,7 @@ import {
   overheadMarginCategorySchema,
   packagingCategorySchema,
   pricingSettingsSchema,
+  quotesCategorySchema,
   roastingCategorySchema,
   SETTINGS_CATEGORIES,
 } from "./validation";
@@ -46,6 +47,7 @@ function validSettings() {
     overheadRate: "0.15",
     marginRate: "0.35",
     exchangeRatesCad: { USD: "1.36", EUR: "1.50", GBP: "1.72" },
+    quoteValidityDays: "30",
   };
 }
 
@@ -163,6 +165,23 @@ describe("pricingSettingsSchema", () => {
         ]);
       },
     );
+  });
+
+  describe("quote validity, in whole days from 1 to 365", () => {
+    it.each([["1"], ["365"]])("accepts %s", (value) => {
+      expect(settingsErrors(["quoteValidityDays"], value)).toBeUndefined();
+    });
+
+    it.each([
+      ["0", "Quote validity must be at least 1 day"],
+      ["366", "Quote validity must be 365 days or less"],
+      ["30.5", "Quote validity must be a whole number of days"],
+      ["abc", "Quote validity must be a number"],
+    ])("rejects %j", (value, message) => {
+      expect(settingsErrors(["quoteValidityDays"], value)).toEqual([
+        { path: ["quoteValidityDays"], message },
+      ]);
+    });
   });
 
   describe("non-numeric values", () => {
@@ -347,6 +366,15 @@ describe("settings category schemas", () => {
       currenciesCategorySchema.safeParse({
         exchangeRatesCad: { ...settings.exchangeRatesCad, USD: "0" },
       }).success,
+    ).toBe(false);
+  });
+
+  it("quotesCategorySchema accepts quoteValidityDays", () => {
+    const result = quotesCategorySchema.parse({ quoteValidityDays: "45" });
+
+    expect(result.quoteValidityDays).toBe(45);
+    expect(
+      quotesCategorySchema.safeParse({ quoteValidityDays: "0" }).success,
     ).toBe(false);
   });
 

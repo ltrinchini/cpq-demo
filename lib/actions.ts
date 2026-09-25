@@ -1,6 +1,5 @@
 "use server";
 
-import { z } from "zod";
 import { getSettings, updateSettings } from "@/lib/db/queries";
 import type { BagSize, PricingSettings } from "@/lib/pricing/types";
 import {
@@ -9,24 +8,16 @@ import {
   laborCategorySchema,
   overheadMarginCategorySchema,
   packagingCategorySchema,
+  quotesCategorySchema,
   roastingCategorySchema,
   SETTINGS_CATEGORIES,
   type SettingsCategory,
 } from "@/lib/pricing/validation";
 import { readVisitorId } from "@/lib/visitor";
+import { fieldErrorsFromZodError as fieldErrors } from "@/lib/zod-errors";
 
 export type SaveSettingsCategoryResult =
   { success: true } | { success: false; fieldErrors: Record<string, string> };
-
-/** One message per field path (`"exchangeRatesCad.USD"`), first issue wins. */
-function fieldErrors(error: z.ZodError): Record<string, string> {
-  const errors: Record<string, string> = {};
-  for (const issue of error.issues) {
-    const path = issue.path.join(".");
-    if (!(path in errors)) errors[path] = issue.message;
-  }
-  return errors;
-}
 
 /**
  * Validates and saves one category of the visitor's pricing settings
@@ -102,6 +93,14 @@ export async function saveSettingsCategory(
     }
     case "currencies": {
       const parsed = currenciesCategorySchema.safeParse(data);
+      if (!parsed.success) {
+        return { success: false, fieldErrors: fieldErrors(parsed.error) };
+      }
+      merged = { ...current, ...parsed.data };
+      break;
+    }
+    case "quotes": {
+      const parsed = quotesCategorySchema.safeParse(data);
       if (!parsed.success) {
         return { success: false, fieldErrors: fieldErrors(parsed.error) };
       }
