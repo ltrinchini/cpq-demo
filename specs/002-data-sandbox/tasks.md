@@ -1,0 +1,10 @@
+# 002 — Tasks
+
+- [ ] 1. Install Drizzle, `drizzle-kit` and the Postgres driver; `db:generate`, `db:migrate`, `db:seed` and `db:purge` scripts; `docker-compose.yml` with Postgres; `.env.example`.
+- [ ] 2. `visitors`, `settings`, `quotes` schema and first migration.
+- [ ] 3. `lib/db/seed.ts`: defaults (settings, default configuration, fictional customer names, validity). Test: the defaults pass Zod validation.
+- [ ] 4. `lib/visitor.ts`: read and set the cookie.
+- [ ] 5. Queries: read settings (database or defaults), create the sandbox on first write, update activity. Tests.
+- [ ] 6. Sample quote, virtual and then inserted when the sandbox is created. Tests.
+- [ ] 7. Settings reset without touching quotes. Tests.
+- [ ] 8. Purge script and daily scheduled job in `docker-compose.yml`. Tests.
