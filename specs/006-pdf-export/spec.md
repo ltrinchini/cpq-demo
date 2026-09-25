@@ -20,4 +20,4 @@ Produce a PDF quote in the Lantern Roasters brand, polished enough to be sent as
 
 ## Dependencies
 
-005.
+005 (saved quotes).

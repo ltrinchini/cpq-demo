@@ -10,20 +10,20 @@ Rules reference: `docs/project.md`, sections "Pricing rules", "Rounding", "Bound
 
 **`PricingSettings`** (visitor settings, all editable)
 
-| Setting | Key | Unit |
-| --- | --- | --- |
-| Green coffee price | per origin | USD/kg |
-| Loss rate | per profile (`light`, `medium`, `dark`) | fraction (0.16) |
-| Batch cycle time | per profile | min |
-| Roaster capacity | — | green coffee kg |
-| Grinding time | per grind (`whole`, `espresso`, `filter`) | min per roasted kg |
-| Packaging cost | per bag size (`250g`, `1kg`, `5kg`) | CAD per bag |
-| Packing time | per bag size | min per bag |
-| Bag weight | per bag size | roasted kg per bag (0.25, 1, 5) |
-| Hourly rates | per station (`roasting`, `grinding`, `packing`) | CAD/h |
-| Overhead | — | fraction of direct costs |
-| Margin | — | fraction of selling price |
-| Exchange rates | `USD`, `EUR`, `GBP` | CAD per 1 unit |
+| Setting            | Key                                             | Unit                            |
+| ------------------ | ----------------------------------------------- | ------------------------------- |
+| Green coffee price | per origin                                      | USD/kg                          |
+| Loss rate          | per profile (`light`, `medium`, `dark`)         | fraction (0.16)                 |
+| Batch cycle time   | per profile                                     | min                             |
+| Roaster capacity   | —                                               | green coffee kg                 |
+| Grinding time      | per grind (`whole`, `espresso`, `filter`)       | min per roasted kg              |
+| Packaging cost     | per bag size (`250g`, `1kg`, `5kg`)             | CAD per bag                     |
+| Packing time       | per bag size                                    | min per bag                     |
+| Bag weight         | per bag size                                    | roasted kg per bag (0.25, 1, 5) |
+| Hourly rates       | per station (`roasting`, `grinding`, `packing`) | CAD/h                           |
+| Overhead           | —                                               | fraction of direct costs        |
+| Margin             | —                                               | fraction of selling price       |
+| Exchange rates     | `USD`, `EUR`, `GBP`                             | CAD per 1 unit                  |
 
 Percentages are stored as fractions (`0.35`); the interface shows them as `%`.
 
@@ -87,22 +87,22 @@ These are also the planned defaults for `seed.ts` (002).
 
 Configuration: Ethiopia Yirgacheffe, medium roast, espresso grind, 1 kg bags, 24 bags.
 
-| Step | Calculation | Result |
-| --- | --- | --- |
-| Roasted kg | 1 × 24 | 24 |
-| Green coffee kg | 24 / 0.84 | 28.571428… |
-| Green coffee | 28.571428… × 8.40 × 1.36 | 326.40 CAD |
-| Packaging | 1.60 × 24 | 38.40 CAD |
-| Batches | ⌈28.571… / 15⌉ | 2 |
-| Roasting | 2 × 18 / 60 × 32 | 19.20 CAD |
-| Grinding | 24 × 3 / 60 × 26 | 31.20 CAD |
-| Packing (labor) | 24 × 0.75 / 60 × 24 | 7.20 CAD |
-| Labor | 19.20 + 31.20 + 7.20 | 57.60 CAD |
-| Direct costs | 326.40 + 38.40 + 57.60 | 422.40 CAD |
-| Overhead | 422.40 × 0.15 | 63.36 CAD |
-| Total cost | | 485.76 CAD |
-| Exact selling price | 485.76 / 0.65 | 747.323076… CAD |
-| Equivalent markup | 0.35 / 0.65 | 53.846…% |
+| Step                | Calculation              | Result          |
+| ------------------- | ------------------------ | --------------- |
+| Roasted kg          | 1 × 24                   | 24              |
+| Green coffee kg     | 24 / 0.84                | 28.571428…      |
+| Green coffee        | 28.571428… × 8.40 × 1.36 | 326.40 CAD      |
+| Packaging           | 1.60 × 24                | 38.40 CAD       |
+| Batches             | ⌈28.571… / 15⌉           | 2               |
+| Roasting            | 2 × 18 / 60 × 32         | 19.20 CAD       |
+| Grinding            | 24 × 3 / 60 × 26         | 31.20 CAD       |
+| Packing (labor)     | 24 × 0.75 / 60 × 24      | 7.20 CAD        |
+| Labor               | 19.20 + 31.20 + 7.20     | 57.60 CAD       |
+| Direct costs        | 326.40 + 38.40 + 57.60   | 422.40 CAD      |
+| Overhead            | 422.40 × 0.15            | 63.36 CAD       |
+| Total cost          |                          | 485.76 CAD      |
+| Exact selling price | 485.76 / 0.65            | 747.323076… CAD |
+| Equivalent markup   | 0.35 / 0.65              | 53.846…%        |
 
 **In CAD**
 

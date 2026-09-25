@@ -19,6 +19,7 @@ Feature order: see `docs/roadmap.md`.
 
 - Dev: `npm run dev`
 - Lint: `npm run lint`
+- Format: `npm run format` (Prettier, with the Tailwind plugin to sort classes)
 - Types: `npx tsc --noEmit`
 - Tests: `npm test` (run after every change, once Vitest is installed)
 - Database:
@@ -46,6 +47,7 @@ No `src/` folder: everything lives at the root.
 - Rounding: only the rounding described in "Rounding" in `docs/project.md` (unit price and breakdown lines in the quote currency); everything else is rounded only for display and in the PDF
 - UI and PDF text in English, formatted with `Intl` using the `en-CA` locale (`$1,234.56`)
 - Mobile first: every screen is checked at 360 px before it is considered done
+- No Tailwind arbitrary values (`max-w-[1200px]`, `text-[15px]`, `bg-[#fff]`): use the Tailwind scale. If no class in the scale fits, ask first, then add a named token to the `@theme` block in `app/globals.css` (e.g. `--container-page`, used as `max-w-page`). Generated shadcn/ui code in `components/ui/` is exempt
 
 ## Public repository
 
@@ -55,7 +57,7 @@ The repository is public and part of a portfolio: potential clients read its his
 
 - Conventional Commits: `type(scope): summary` (`feat`, `fix`, `test`, `refactor`, `docs`, `chore`), imperative summary, 72 characters max, no trailing period.
 - One commit per `tasks.md` task, including its tests. The scope is the feature (`feat(pricing): add green coffee cost`).
-- Every commit passes `npm test`, `npm run lint` and `npx tsc --noEmit`.
+- Every commit passes `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit`.
 - No "wip" commits, no chains of "fix typo" commits, no commented-out code: fix things before committing.
 - Never commit or push without an explicit request.
 

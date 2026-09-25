@@ -15,15 +15,15 @@ The memorable element of the demo is **the price breakdown**: a horizontal stack
 
 ## Application colours
 
-| Role                     | Name         | Hex       |
-| ------------------------ | ------------ | --------- |
-| Page background          | Mist         | `#F6F7F6` |
-| Surfaces (panels, tables) | White       | `#FFFFFF` |
-| Primary text             | Ink          | `#1C211E` |
-| Secondary text           | Slate        | `#5A635D` |
-| Borders and dividers     | Frost        | `#DDE2DE` |
-| Actions, links, focus    | Coffee green | `#2E5A47` |
-| Errors                   | Red          | `#B3261E` |
+| Role                      | Name         | Hex       |
+| ------------------------- | ------------ | --------- |
+| Page background           | Mist         | `#F6F7F6` |
+| Surfaces (panels, tables) | White        | `#FFFFFF` |
+| Primary text              | Ink          | `#1C211E` |
+| Secondary text            | Slate        | `#5A635D` |
+| Borders and dividers      | Frost        | `#DDE2DE` |
+| Actions, links, focus     | Coffee green | `#2E5A47` |
+| Errors                    | Red          | `#B3261E` |
 
 Coffee green is the only action colour: primary buttons, links, selected item, focus ring. It is never used as decoration.
 
@@ -31,13 +31,13 @@ Coffee green is the only action colour: primary buttons, links, selected item, f
 
 Used only in the breakdown bar, its legend and the swatches of the price detail. Nowhere else.
 
-| Cost line      | Displayed label | Hex       |
-| -------------- | --------------- | --------- |
-| Green coffee   | Green coffee    | `#A9B98C` |
-| Packaging      | Packaging       | `#D8C6A1` |
-| Labor          | Labor           | `#B0875A` |
-| Overhead       | Overhead        | `#7A5536` |
-| Margin         | Margin          | `#3D2A1E` |
+| Cost line    | Displayed label | Hex       |
+| ------------ | --------------- | --------- |
+| Green coffee | Green coffee    | `#A9B98C` |
+| Packaging    | Packaging       | `#D8C6A1` |
+| Labor        | Labor           | `#B0875A` |
+| Overhead     | Overhead        | `#7A5536` |
+| Margin       | Margin          | `#3D2A1E` |
 
 Each segment also has a label or a legend entry: colour never carries information on its own.
 
@@ -70,10 +70,10 @@ Declared once in `app/globals.css`; only these names are used afterwards (never 
 
 - **Application**: IBM Plex Sans only (via `next/font/google`), weights 400, 500 and 600.
 - **All amounts and quantities** use tabular figures (`tabular-nums`), so prices do not shift when they recalculate.
-- Scale: 13 px (notes, captions), 15 px (body text), 18 px (section headings), 24 px (page title), 32 px (configurator total price on desktop, the only element at this size; 24 px in the mobile sticky bar).
-- Inputs at 16 px on mobile: below that, iOS Safari zooms into the field on tap.
+- Scale, on the Tailwind scale only: 12 px `text-xs` (notes, captions), 14 px `text-sm` (body text), 18 px `text-lg` (section headings), 24 px `text-2xl` (page title), 30 px `text-3xl` (configurator total price on desktop, the only element at this size; 24 px `text-2xl` in the mobile sticky bar).
+- Inputs at 16 px `text-base` on mobile: below that, iOS Safari zooms into the field on tap.
 - Sentence case everywhere: no all-caps labels, no small eyebrow text above headings.
-- Maximum line length: 70 characters for explanatory text.
+- Maximum line length: 65 characters (`max-w-prose`) for explanatory text.
 
 ## Formats
 
@@ -87,7 +87,7 @@ The interface and the PDF are in Canadian English: every format goes through `In
 
 ## Layout
 
-Left-aligned content, 1200 px maximum width, 24 px margins (16 px on mobile).
+Left-aligned content, 1280 px maximum width (`max-w-7xl`), 24 px margins (`px-6`; 16 px `px-4` on mobile).
 
 ### Responsive
 
@@ -103,7 +103,7 @@ Many visitors arrive from a shared link (LinkedIn, email) and open the demo on t
 
 ### Navigation
 
-The header and tabs (Configure, Quotes, Pricing settings) stay visible on mobile, with no hamburger menu: three choices fit in the width. On mobile, the tabs take the full width, in equal parts, with a 44 px minimum height; the third becomes "Settings" to fit at 360 px.
+The header and tabs (Configure, Quotes, Pricing settings) stay visible on mobile, with no hamburger menu: three choices fit in the width. On mobile, the tabs take the full width, in equal parts, with a 44 px minimum height (`min-h-11`); the third becomes "Settings" to fit at 360 px.
 
 ### Configurator (desktop)
 
@@ -123,7 +123,7 @@ The header and tabs (Configure, Quotes, Pricing settings) stay visible on mobile
 └──────────────────────────────────┴─────────────────────────┘
 ```
 
-Options on the left (about 60%), price summary on the right, which stays visible while scrolling.
+Options on the left (60%: 3 of 5 grid columns), price summary on the right, which stays visible while scrolling.
 
 The currency (CAD, USD, EUR, GBP) is chosen in the options, as a dropdown (four choices, too many for segmented buttons at 360 px). Every amount in the summary is shown in that currency.
 
@@ -152,11 +152,11 @@ The currency (CAD, USD, EUR, GBP) is chosen in the options, as a dropdown (four 
 
 - Options take the full width, in one column, in this order: coffee, roast, grind, bag size, quantity, currency, notes.
 - Segmented buttons take the full width, in equal parts (three choices at most, so they fit on one line at 360 px).
-- Quantity: numeric field between 44 px − and + buttons.
-- **Sticky bottom bar**: total price (24 px), unit price below it, and the primary "Save quote" button on the right. The bar has a shadow (it floats) and gets the same recalculation effect as the desktop summary.
-- Tapping the price area opens the **detail sheet** that slides up from the bottom (shadcn/ui Drawer component): full-width breakdown bar, legend as a vertical list below the bar (never beside it), every cost line, then the calculation details. The sheet takes at most 90% of the screen height and scrolls inside.
+- Quantity: numeric field between 44 px (`size-11`) − and + buttons.
+- **Sticky bottom bar**: total price (24 px `text-2xl`), unit price below it, and the primary "Save quote" button on the right. The bar has a shadow (it floats) and gets the same recalculation effect as the desktop summary.
+- Tapping the price area opens the **detail sheet** that slides up from the bottom (shadcn/ui Drawer component): full-width breakdown bar, legend as a vertical list below the bar (never beside it), every cost line, then the calculation details. The sheet takes at most 80% of the screen height (the shadcn/ui Drawer default) and scrolls inside.
 - The sheet closes with a visible "Close" button, by swiping down, by tapping the backdrop or with the Escape key. While it is open, the page behind does not scroll and focus stays in the sheet; on close, focus returns to the bar.
-- In the calculation details, each line takes two levels: label and amount on the first line, formula in 13 px below (e.g. `28.57 kg green × US$8.40 × 1.36`).
+- In the calculation details, each line takes two levels: label and amount on the first line, formula in 12 px `text-xs` below (e.g. `28.57 kg green × US$8.40 × 1.36`).
 
 ### Settings
 
@@ -182,7 +182,7 @@ On mobile:
 
 ## Components
 
-- Radii: 6 px for inputs and buttons, 10 px for panels and dialogs. Nothing rounder.
+- Radii: 6 px `rounded-md` for inputs and buttons, 8 px `rounded-lg` for panels and dialogs. Nothing rounder.
 - Shadows: only for floating elements (menus, dialogs, mobile sheet). Panels resting on the page have a Frost border, no shadow.
 - No gradients, no decorative icons, no illustrations in the application.
 - One primary button (coffee green background) per screen; other actions are secondary (outlined) or links.
@@ -191,14 +191,14 @@ On mobile:
 
 ## Motion
 
-A single effect: when the price recalculates, the amounts that changed get a brief, very light coffee green background (600 ms), and the bar segments adjust in 200 ms. Nothing else animates on load. One exception, on mobile: bottom sheets slide up and down in 200 ms. If the user has turned on "reduce motion", values change without any effect.
+A single effect: when the price recalculates, the amounts that changed get a brief, very light coffee green background (600 ms, `duration-600`), and the bar segments adjust in 200 ms (`duration-200`). Nothing else animates on load. One exception, on mobile: bottom sheets slide up and down in 200 ms. If the user has turned on "reduce motion", values change without any effect.
 
 ## Accessibility
 
 - WCAG AA contrast at minimum for all text.
-- Visible 2 px coffee green focus ring on every interactive element.
+- Visible 2 px (`ring-2`) coffee green focus ring on every interactive element.
 - Every field has a visible label (not just a placeholder).
-- Touch targets of at least 44 px on mobile, spaced at least 8 px apart.
+- Touch targets of at least 44 px (`size-11`) on mobile, spaced at least 8 px (`gap-2`) apart.
 - Browser zoom never blocked (no `maximum-scale` or `user-scalable=no`).
 
 ## Interface copy
