@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "./client";
 import { ensureSandbox, getSettings, touchVisitorActivity } from "./queries";
-import { settings, visitors } from "./schema";
+import { quotes, settings, visitors } from "./schema";
 import { defaultSettings } from "./seed";
 
 // Integration tests: require a reachable DATABASE_URL with migrations
@@ -44,7 +44,7 @@ describe("getSettings", () => {
 });
 
 describe("ensureSandbox", () => {
-  it("creates the visitor and default settings rows", async () => {
+  it("creates the visitor, default settings and sample quote rows", async () => {
     const visitorId = randomUUID();
 
     await ensureSandbox(visitorId);
@@ -54,9 +54,16 @@ describe("ensureSandbox", () => {
     });
     expect(visitor).toBeDefined();
     expect(await getSettings(visitorId)).toEqual(defaultSettings());
+
+    const quoteRows = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(quoteRows).toHaveLength(1);
+    expect(quoteRows[0].number).toMatch(/^Q-\d{6}-0001$/);
   });
 
-  it("does not overwrite an already-customized settings row", async () => {
+  it("does not overwrite an already-customized settings row or add a second quote", async () => {
     const visitorId = randomUUID();
     await ensureSandbox(visitorId);
     await db
@@ -70,6 +77,11 @@ describe("ensureSandbox", () => {
 
     const result = await getSettings(visitorId);
     expect(result.overheadRate.toString()).toBe("0.5");
+    const quoteRows = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(quoteRows).toHaveLength(1);
   });
 
   it("is safe to call concurrently for the same visitor", async () => {
@@ -82,6 +94,11 @@ describe("ensureSandbox", () => {
       .from(visitors)
       .where(eq(visitors.id, visitorId));
     expect(rows).toHaveLength(1);
+    const quoteRows = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(quoteRows).toHaveLength(1);
   });
 });
 

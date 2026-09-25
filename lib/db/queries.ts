@@ -1,7 +1,7 @@
 import { and, eq, lt } from "drizzle-orm";
 import { db } from "./client";
-import { settings, visitors } from "./schema";
-import { defaultSettings } from "./seed";
+import { quotes, settings, visitors } from "./schema";
+import { defaultSettings, sampleQuote } from "./seed";
 import type { PricingSettings } from "@/lib/pricing/types";
 import { pricingSettingsSchema } from "@/lib/pricing/validation";
 
@@ -21,18 +21,26 @@ export async function getSettings(visitorId: string): Promise<PricingSettings> {
 }
 
 /**
- * Creates the visitor's sandbox (visitor row and default settings) if it
- * doesn't exist yet. Call before a settings change or a saved quote — the
- * only two writes allowed to create a sandbox. Idempotent: never overwrites
- * an existing settings row, so it is safe to call before every write.
+ * Creates the visitor's sandbox (visitor row, default settings and the
+ * sample quote) if it doesn't exist yet. Call before a settings change or
+ * a saved quote — the only two writes allowed to create a sandbox. Gated
+ * on the visitor row actually being inserted, so a sandbox is created at
+ * most once and repeat calls (including concurrent ones) never touch an
+ * existing sandbox's settings or insert a second sample quote.
  */
 export async function ensureSandbox(visitorId: string): Promise<void> {
   await db.transaction(async (tx) => {
-    await tx.insert(visitors).values({ id: visitorId }).onConflictDoNothing();
+    const inserted = await tx
+      .insert(visitors)
+      .values({ id: visitorId })
+      .onConflictDoNothing()
+      .returning({ id: visitors.id });
+    if (inserted.length === 0) return;
+
     await tx
       .insert(settings)
-      .values({ visitorId, settings: defaultSettings() })
-      .onConflictDoNothing();
+      .values({ visitorId, settings: defaultSettings() });
+    await tx.insert(quotes).values({ visitorId, ...sampleQuote() });
   });
 }
 

@@ -1,5 +1,11 @@
 import Decimal from "decimal.js";
-import type { Configuration, PricingSettings } from "@/lib/pricing/types";
+import { calculatePrice } from "@/lib/pricing";
+import type {
+  Configuration,
+  Currency,
+  PriceResult,
+  PricingSettings,
+} from "@/lib/pricing/types";
 
 /**
  * Default settings for a new sandbox: fictional but realistic rates,
@@ -77,3 +83,58 @@ export const DEMO_CUSTOMER_NAMES = [
 
 /** Quote validity, in days from its creation date. */
 export const QUOTE_VALIDITY_DAYS = 30;
+
+/** `Q-YYMMDD-XXXX`: creation date (America/Toronto) and daily counter. */
+function quoteNumber(createdAt: Date, counter: number): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(createdAt);
+  const part = (type: "year" | "month" | "day") =>
+    parts.find((p) => p.type === type)!.value;
+
+  return `Q-${part("year")}${part("month")}${part("day")}-${String(counter).padStart(4, "0")}`;
+}
+
+/** Fields of a `quotes` row, without `id` and `visitorId`. */
+export interface SampleQuote {
+  number: string;
+  customerName: string;
+  currency: Currency;
+  notes: null;
+  configuration: Configuration;
+  settingsSnapshot: PricingSettings;
+  resultSnapshot: PriceResult;
+  total: string;
+  createdAt: Date;
+  validUntil: Date;
+}
+
+/**
+ * The demo quote shown on the first visit: the default configuration
+ * priced with the default settings. Virtual until the sandbox is created
+ * (see `ensureSandbox` in `lib/db/queries.ts`), at which point it becomes
+ * the visitor's first quote of the day (`0001`).
+ */
+export function sampleQuote(createdAt: Date = new Date()): SampleQuote {
+  const configuration = defaultConfiguration();
+  const settingsSnapshot = defaultSettings();
+  const resultSnapshot = calculatePrice(settingsSnapshot, configuration);
+
+  return {
+    number: quoteNumber(createdAt, 1),
+    customerName: DEMO_CUSTOMER_NAMES[0],
+    currency: configuration.currency,
+    notes: null,
+    configuration,
+    settingsSnapshot,
+    resultSnapshot,
+    total: resultSnapshot.total.toFixed(2),
+    createdAt,
+    validUntil: new Date(
+      createdAt.getTime() + QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000,
+    ),
+  };
+}
