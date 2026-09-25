@@ -105,7 +105,7 @@ export function SettingsCategories({
                   aria-current={selected === category ? "page" : undefined}
                   onClick={() => setSelected(category)}
                   className={cn(
-                    "min-h-11 w-full rounded-md px-3 py-2 text-left text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-action",
+                    "min-h-11 w-full cursor-pointer rounded-md px-3 py-2 text-left text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-action",
                     selected === category
                       ? "bg-mist text-action"
                       : "text-slate hover:text-ink",
