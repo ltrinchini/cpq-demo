@@ -1,5 +1,6 @@
 import type {
   BagSize,
+  CostLine,
   Currency,
   Grind,
   OriginId,
@@ -38,6 +39,15 @@ export const STATION_LABELS: Record<Station, string> = {
   roasting: "Roasting",
   grinding: "Grinding",
   packing: "Packing",
+};
+
+/** Breakdown bar and legend labels (`docs/design.md`, "Roast scale"). */
+export const COST_LINE_LABELS: Record<CostLine, string> = {
+  greenCoffee: "Green coffee",
+  packaging: "Packaging",
+  labor: "Labor",
+  overhead: "Overhead",
+  margin: "Margin",
 };
 
 export const CURRENCY_LABELS: Record<Currency, string> = {
