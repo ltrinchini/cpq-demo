@@ -11,7 +11,7 @@ import {
   type PricingSettings,
 } from "./types";
 
-const MAX_QUANTITY = 10_000;
+export const MAX_QUANTITY = 10_000;
 
 /**
  * Accepts a number, a numeric string (form fields, Postgres `numeric`
