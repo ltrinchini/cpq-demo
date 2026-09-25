@@ -5,4 +5,4 @@
 - [x] 3. Forms per category (desktop).
 - [x] 4. Mobile version: collapsible sections and lists.
 - [x] 5. "Reset demo data" with confirmation (bottom sheet on mobile).
-- [ ] 6. Check at the four widths.
+- [x] 6. Check at the four widths.
