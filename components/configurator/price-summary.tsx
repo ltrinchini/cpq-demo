@@ -4,6 +4,7 @@ import { formatCurrency } from "@/lib/format";
 import { COST_LINE_LABELS } from "@/lib/labels";
 import { COST_LINES } from "@/lib/pricing/types";
 import type { PriceResult } from "@/lib/pricing/types";
+import { CalculationDetails } from "./calculation-details";
 
 /** Roast scale colours, in the breakdown bar order (`docs/design.md`). */
 const COST_LINE_COLOR_CLASS: Record<(typeof COST_LINES)[number], string> = {
@@ -67,6 +68,8 @@ export function PriceSummary({ price }: PriceSummaryProps) {
           </li>
         ))}
       </ul>
+
+      <CalculationDetails price={price} />
 
       <Button type="button" className="rounded-md">
         Save quote

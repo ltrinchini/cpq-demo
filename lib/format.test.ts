@@ -4,6 +4,7 @@ import {
   formatCurrency,
   formatPercent,
   formatQuantity,
+  formatRate,
   fromPercentInput,
   normalizeDecimalInput,
   toPercentInput,
@@ -53,6 +54,21 @@ describe("formatCurrency", () => {
 
   it("accepts a Decimal", () => {
     expect(formatCurrency(new Decimal("42"), "CAD")).toBe("$42.00");
+  });
+});
+
+describe("formatRate", () => {
+  it("formats a rate with at least two decimals", () => {
+    expect(formatRate("1.36")).toBe("1.36");
+    expect(formatRate(1)).toBe("1.00");
+  });
+
+  it("accepts a Decimal", () => {
+    expect(formatRate(new Decimal("1.5"))).toBe("1.50");
+  });
+
+  it("keeps up to four decimals", () => {
+    expect(formatRate("1.3625")).toBe("1.3625");
   });
 });
 

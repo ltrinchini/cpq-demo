@@ -50,6 +50,14 @@ export function formatCurrency(
   }).format(new Decimal(amount).toNumber());
 }
 
+/** A plain decimal rate for display (`"1.36"`), not a currency or a percentage. */
+export function formatRate(value: Decimal | string | number): string {
+  return new Intl.NumberFormat("en-CA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(new Decimal(value).toNumber());
+}
+
 /**
  * A quantity with its unit, for display (`"11.9 kg"`, `"3 batches"`,
  * `"1 bag"`). `plural` defaults to `singular` for units that don't inflect
