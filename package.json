@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:purge": "tsx scripts/purge.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

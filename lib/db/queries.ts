@@ -6,6 +6,7 @@ import type { PricingSettings } from "@/lib/pricing/types";
 import { pricingSettingsSchema } from "@/lib/pricing/validation";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const PURGE_AFTER_DAYS = 30;
 
 /**
  * The visitor's settings, from the database if their sandbox exists,
@@ -69,4 +70,21 @@ export async function touchVisitorActivity(visitorId: string): Promise<void> {
     .update(visitors)
     .set({ lastSeenAt: new Date() })
     .where(and(eq(visitors.id, visitorId), lt(visitors.lastSeenAt, oneDayAgo)));
+}
+
+/**
+ * Deletes sandboxes (visitor, settings and quotes, via cascade) inactive
+ * for more than 30 days. Returns the number of sandboxes deleted.
+ */
+export async function purgeInactiveSandboxes(
+  now = new Date(),
+): Promise<number> {
+  const cutoff = new Date(now.getTime() - PURGE_AFTER_DAYS * ONE_DAY_MS);
+
+  const deleted = await db
+    .delete(visitors)
+    .where(lt(visitors.lastSeenAt, cutoff))
+    .returning({ id: visitors.id });
+
+  return deleted.length;
 }

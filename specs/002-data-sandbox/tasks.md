@@ -7,4 +7,4 @@
 - [x] 5. Queries: read settings (database or defaults), create the sandbox on first write, update activity. Tests.
 - [x] 6. Sample quote, virtual and then inserted when the sandbox is created. Tests.
 - [x] 7. Settings reset without touching quotes. Tests.
-- [ ] 8. Purge script and daily scheduled job in `docker-compose.yml`. Tests.
+- [x] 8. Purge script and daily scheduled job in `docker-compose.yml`. Tests.

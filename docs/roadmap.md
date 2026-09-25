@@ -5,7 +5,7 @@ Order in which features are built. Each feature has its own folder in `specs/` w
 ## Version 1
 
 - [x] 001 — Pricing engine (pure logic, no UI, currencies included)
-- [ ] 002 — Data and per-visitor sandbox (schema, demo data, reset, purge)
+- [x] 002 — Data and per-visitor sandbox (schema, demo data, reset, purge)
 - [ ] 003 — Pricing settings (`/settings`, exchange rates included)
 - [ ] 004 — Configurator with live pricing (currency choice included)
 - [ ] 005 — Quotes (save, list, detail)

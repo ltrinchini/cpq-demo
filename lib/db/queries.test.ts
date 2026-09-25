@@ -6,6 +6,7 @@ import { db } from "./client";
 import {
   ensureSandbox,
   getSettings,
+  purgeInactiveSandboxes,
   resetSettings,
   touchVisitorActivity,
 } from "./queries";
@@ -187,5 +188,83 @@ describe("touchVisitorActivity", () => {
 
     const rows = await db.select().from(visitors);
     expect(rows).toHaveLength(0);
+  });
+});
+
+describe("purgeInactiveSandboxes", () => {
+  // A fixed `now`, shared between the fixtures and the call under test: using
+  // `Date.now()` independently in both would race by a few milliseconds and
+  // make the exactly-30-days boundary test flaky.
+  const now = new Date();
+  const daysAgo = (days: number) =>
+    new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+  it("deletes a sandbox inactive for more than 30 days, cascading to its settings and quotes", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    await db
+      .update(visitors)
+      .set({ lastSeenAt: daysAgo(31) })
+      .where(eq(visitors.id, visitorId));
+
+    const count = await purgeInactiveSandboxes(now);
+
+    expect(count).toBe(1);
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeUndefined();
+    const settingsRow = await db.query.settings.findFirst({
+      where: eq(settings.visitorId, visitorId),
+    });
+    expect(settingsRow).toBeUndefined();
+    const quoteRows = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(quoteRows).toHaveLength(0);
+  });
+
+  it("leaves a sandbox inactive for exactly 30 days untouched", async () => {
+    const visitorId = randomUUID();
+    await db
+      .insert(visitors)
+      .values({ id: visitorId, lastSeenAt: daysAgo(30) });
+
+    const count = await purgeInactiveSandboxes(now);
+
+    expect(count).toBe(0);
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeDefined();
+  });
+
+  it("leaves an active sandbox untouched", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+
+    const count = await purgeInactiveSandboxes(now);
+
+    expect(count).toBe(0);
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeDefined();
+  });
+
+  it("returns the count of every inactive sandbox it deletes", async () => {
+    const inactiveIds = [randomUUID(), randomUUID()];
+    const activeId = randomUUID();
+    for (const id of inactiveIds) {
+      await db.insert(visitors).values({ id, lastSeenAt: daysAgo(45) });
+    }
+    await db.insert(visitors).values({ id: activeId });
+
+    const count = await purgeInactiveSandboxes(now);
+
+    expect(count).toBe(2);
+    const rows = await db.select().from(visitors);
+    expect(rows.map((row) => row.id)).toEqual([activeId]);
   });
 });
