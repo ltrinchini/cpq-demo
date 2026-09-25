@@ -29,6 +29,10 @@ import {
 } from "@/lib/pricing/types";
 import { MAX_QUANTITY } from "@/lib/pricing/validation";
 
+/** Coffee green marks the selected item (`docs/design.md`, "Application colours"). */
+const SEGMENTED_ITEM_CLASS =
+  "h-11 flex-1 rounded-md data-[state=on]:border-action data-[state=on]:bg-action/5 data-[state=on]:text-action";
+
 interface OptionsFormProps {
   configuration: Configuration;
   onConfigurationChange: (configuration: Configuration) => void;
@@ -91,7 +95,7 @@ export function OptionsForm({
             <ToggleGroupItem
               key={profile}
               value={profile}
-              className="h-11 flex-1 rounded-md"
+              className={SEGMENTED_ITEM_CLASS}
             >
               {ROAST_PROFILE_LABELS[profile]}
             </ToggleGroupItem>
@@ -114,7 +118,7 @@ export function OptionsForm({
             <ToggleGroupItem
               key={grind}
               value={grind}
-              className="h-11 flex-1 rounded-md"
+              className={SEGMENTED_ITEM_CLASS}
             >
               {GRIND_LABELS[grind]}
             </ToggleGroupItem>
@@ -137,7 +141,7 @@ export function OptionsForm({
             <ToggleGroupItem
               key={bagSize}
               value={bagSize}
-              className="h-11 flex-1 rounded-md"
+              className={SEGMENTED_ITEM_CLASS}
             >
               {BAG_SIZE_LABELS[bagSize]}
             </ToggleGroupItem>
