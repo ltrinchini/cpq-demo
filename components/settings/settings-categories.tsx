@@ -18,6 +18,7 @@ import { LaborForm } from "./labor-form";
 import { OverheadMarginForm } from "./overhead-margin-form";
 import { PackagingForm } from "./packaging-form";
 import { QuotesForm } from "./quotes-form";
+import { ResetDemoData } from "./reset-demo-data";
 import { RoastingForm } from "./roasting-form";
 import type { SettingsFormValues } from "./types";
 
@@ -137,6 +138,8 @@ export function SettingsCategories({
           </AccordionItem>
         ))}
       </Accordion>
+
+      <ResetDemoData />
     </>
   );
 }

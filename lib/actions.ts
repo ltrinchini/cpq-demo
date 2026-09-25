@@ -1,6 +1,6 @@
 "use server";
 
-import { getSettings, updateSettings } from "@/lib/db/queries";
+import { getSettings, resetSettings, updateSettings } from "@/lib/db/queries";
 import type { BagSize, PricingSettings } from "@/lib/pricing/types";
 import {
   currenciesCategorySchema,
@@ -110,5 +110,27 @@ export async function saveSettingsCategory(
   }
 
   await updateSettings(visitorId, merged);
+  return { success: true };
+}
+
+export type ResetDemoDataResult =
+  { success: true } | { success: false; error: string };
+
+/**
+ * Restores every pricing setting to its demo default (`docs/design.md`,
+ * "Settings"). Never touches quotes: a quote is frozen at save time, so a
+ * reset leaves every saved quote exactly as it was.
+ */
+export async function resetDemoData(): Promise<ResetDemoDataResult> {
+  const visitorId = await readVisitorId();
+  if (!visitorId) {
+    return {
+      success: false,
+      error:
+        "Your sandbox could not be identified. Reload the page and try again.",
+    };
+  }
+
+  await resetSettings(visitorId);
   return { success: true };
 }

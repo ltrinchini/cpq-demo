@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import Decimal from "decimal.js";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { saveSettingsCategory } from "./actions";
+import { resetDemoData, saveSettingsCategory } from "./actions";
 import { db } from "./db/client";
 import { getSettings } from "./db/queries";
 import { visitors } from "./db/schema";
@@ -133,6 +133,31 @@ describe("saveSettingsCategory", () => {
       overheadRate: "0.1",
       marginRate: "0.3",
     });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("resetDemoData", () => {
+  it("restores customized settings to their defaults", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+    await saveSettingsCategory("overheadMargin", {
+      overheadRate: "0.5",
+      marginRate: "0.4",
+    });
+
+    const result = await resetDemoData();
+
+    expect(result).toEqual({ success: true });
+    const settings = await getSettings(visitorId);
+    expect(settings).toEqual(defaultSettings());
+  });
+
+  it("returns an error when the visitor cannot be identified", async () => {
+    await mockVisitorCookie(undefined);
+
+    const result = await resetDemoData();
 
     expect(result.success).toBe(false);
   });
