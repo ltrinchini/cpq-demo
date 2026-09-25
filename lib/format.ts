@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import type { Currency } from "@/lib/pricing/types";
 
 /**
  * Normalizes a numeric field's raw input before validation: a comma is a
@@ -36,4 +37,33 @@ export function formatPercent(fraction: Decimal | string): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 1,
   }).format(new Decimal(fraction).toNumber());
+}
+
+/** An amount in the given currency, formatted for display (`"US$1,234.56"`). */
+export function formatCurrency(
+  amount: Decimal | string | number,
+  currency: Currency,
+): string {
+  return new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency,
+  }).format(new Decimal(amount).toNumber());
+}
+
+/**
+ * A quantity with its unit, for display (`"11.9 kg"`, `"3 batches"`,
+ * `"1 bag"`). `plural` defaults to `singular` for units that don't inflect
+ * (`"kg"`).
+ */
+export function formatQuantity(
+  value: Decimal | string | number,
+  singular: string,
+  plural: string = singular,
+): string {
+  const amount = new Decimal(value);
+  const number = new Intl.NumberFormat("en-CA", {
+    maximumFractionDigits: 2,
+  }).format(amount.toNumber());
+  const unit = amount.equals(1) ? singular : plural;
+  return `${number} ${unit}`;
 }
