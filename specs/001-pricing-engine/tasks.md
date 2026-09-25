@@ -9,7 +9,7 @@
 - [x] 2. `lib/pricing/types.ts`: `PricingSettings`, `Configuration` and `PriceResult` types, with the fixed lists (origins, profiles, grinds, bag sizes, stations, currencies).
 - [x] 3. `lib/pricing/validation.ts`: Zod schemas with the bounds from `docs/project.md` and English error messages. Tests for every bound.
 - [x] 4. Green coffee: roasted kg, green coffee kg, cost in CAD. Tests.
-- [ ] 5. Packaging: bag cost. Tests.
+- [x] 5. Packaging: bag cost. Tests.
 - [ ] 6. Labor: batches (ceiling), roasting by profile, grinding, packing. Tests, including batch edge cases.
 - [ ] 7. Overhead, total cost, selling price, equivalent markup. Tests.
 - [ ] 8. Conversion and rounding: unit price, total, price per kg, rounded lines, margin absorbing the difference. Tests in all four currencies and for half-up rounding.
