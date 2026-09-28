@@ -50,6 +50,19 @@ export function formatCurrency(
   }).format(new Decimal(amount).toNumber());
 }
 
+/**
+ * A quote's date for display (`"Mar 5, 2026"`), as the calendar day in
+ * America/Toronto — the time zone `lib/quote-number.ts` uses to number it.
+ */
+export function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "America/Toronto",
+  }).format(date);
+}
+
 /** A plain decimal rate for display (`"1.36"`), not a currency or a percentage. */
 export function formatRate(value: Decimal | string | number): string {
   return new Intl.NumberFormat("en-CA", {

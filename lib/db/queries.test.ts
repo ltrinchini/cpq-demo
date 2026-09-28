@@ -9,13 +9,14 @@ import {
   createQuote,
   ensureSandbox,
   getSettings,
+  listQuotes,
   purgeInactiveSandboxes,
   resetSettings,
   touchVisitorActivity,
   updateSettings,
 } from "./queries";
 import { quotes, settings, visitors } from "./schema";
-import { defaultConfiguration, defaultSettings } from "./seed";
+import { defaultConfiguration, defaultSettings, sampleQuote } from "./seed";
 
 // Integration tests: require a reachable DATABASE_URL with migrations
 // applied (`npm run db:migrate`).
@@ -487,5 +488,55 @@ describe("createQuote", () => {
       .from(quotes)
       .where(eq(quotes.number, saved.number));
     expect(row.notes).toBe("Deliver before Friday.");
+  });
+});
+
+describe("listQuotes", () => {
+  it("returns an empty list for a visitor with no sandbox", async () => {
+    const result = await listQuotes(randomUUID());
+
+    expect(result).toEqual([]);
+  });
+
+  it("returns the visitor's quotes, most recent first", async () => {
+    const visitorId = randomUUID();
+    await db.insert(visitors).values({ id: visitorId });
+    const older = sampleQuote(new Date("2026-03-01T12:00:00Z"));
+    const newer = sampleQuote(new Date("2026-03-02T12:00:00Z"));
+    await db.insert(quotes).values({
+      visitorId,
+      ...older,
+      number: "Q-260301-0001",
+      customerName: "Older Café",
+    });
+    await db.insert(quotes).values({
+      visitorId,
+      ...newer,
+      number: "Q-260302-0001",
+      customerName: "Newer Café",
+    });
+
+    const result = await listQuotes(visitorId);
+
+    expect(result.map((q) => q.customerName)).toEqual([
+      "Newer Café",
+      "Older Café",
+    ]);
+    expect(result[0]).toMatchObject({
+      number: "Q-260302-0001",
+      currency: newer.currency,
+      total: newer.total,
+    });
+  });
+
+  it("does not return another visitor's quotes", async () => {
+    const visitorId = randomUUID();
+    const otherVisitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    await ensureSandbox(otherVisitorId);
+
+    const result = await listQuotes(visitorId);
+
+    expect(result).toHaveLength(1);
   });
 });

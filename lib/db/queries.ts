@@ -1,6 +1,6 @@
-import { and, count, eq, like, lt } from "drizzle-orm";
+import { and, count, desc, eq, like, lt } from "drizzle-orm";
 import { calculatePrice } from "@/lib/pricing";
-import type { Configuration } from "@/lib/pricing/types";
+import type { Configuration, Currency } from "@/lib/pricing/types";
 import { pricingSettingsSchema } from "@/lib/pricing/validation";
 import { nextQuoteNumber, quoteNumberPrefix } from "@/lib/quote-number";
 import { db } from "./client";
@@ -201,4 +201,28 @@ export async function createQuote(
       `Could not assign a quote number for visitor ${visitorId} after ${MAX_NUMBER_ATTEMPTS} attempts.`,
     );
   });
+}
+
+/** One row of the `/quotes` list (`docs/design.md`, "Quotes"). */
+export interface QuoteListItem {
+  number: string;
+  customerName: string;
+  currency: Currency;
+  total: string;
+  createdAt: Date;
+}
+
+/** The visitor's quotes, most recent first. */
+export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
+  return db
+    .select({
+      number: quotes.number,
+      customerName: quotes.customerName,
+      currency: quotes.currency,
+      total: quotes.total,
+      createdAt: quotes.createdAt,
+    })
+    .from(quotes)
+    .where(eq(quotes.visitorId, visitorId))
+    .orderBy(desc(quotes.createdAt));
 }

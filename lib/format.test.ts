@@ -2,6 +2,7 @@ import Decimal from "decimal.js";
 import { describe, expect, it } from "vitest";
 import {
   formatCurrency,
+  formatDate,
   formatPercent,
   formatQuantity,
   formatRate,
@@ -54,6 +55,17 @@ describe("formatCurrency", () => {
 
   it("accepts a Decimal", () => {
     expect(formatCurrency(new Decimal("42"), "CAD")).toBe("$42.00");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats a date in the America/Toronto time zone", () => {
+    expect(formatDate(new Date("2026-03-05T12:00:00Z"))).toBe("Mar 5, 2026");
+  });
+
+  it("uses the America/Toronto calendar date, not the UTC one", () => {
+    // 2026-03-05T04:30:00Z is still 2026-03-04 evening in Toronto (EST, UTC-5).
+    expect(formatDate(new Date("2026-03-05T04:30:00Z"))).toBe("Mar 4, 2026");
   });
 });
 
