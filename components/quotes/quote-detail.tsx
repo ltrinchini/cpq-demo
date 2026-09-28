@@ -22,10 +22,10 @@ function OrderRow({ label, value }: { label: string; value: string }) {
 }
 
 /**
- * The `/quotes/[number]` preview: a faithful read of the frozen quote,
- * in the same order as the PDF it stands in for ("Download PDF" itself is
- * delivered in 006) — header, customer, order, price breakdown, total,
- * terms (`docs/design.md`, "Quotes" and "PDF quote — Lantern Roasters").
+ * The `/quotes/[number]` preview: a faithful read of the frozen quote, in
+ * the same order as the PDF it stands in for — header, customer, order,
+ * price breakdown, total, terms (`docs/design.md`, "Quotes" and "PDF quote
+ * — Lantern Roasters").
  */
 export function QuoteDetail({ quote }: QuoteDetailProps) {
   const { configuration, resultSnapshot, currency } = quote;
