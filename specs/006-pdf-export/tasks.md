@@ -4,4 +4,4 @@
 - [x] 2. PDF document: header, customer, order, price breakdown, total, terms, footer.
 - [x] 3. Generation route and file name.
 - [x] 4. "Download PDF" button on the detail page.
-- [ ] 5. Test: PDF amounts come from the frozen copy.
+- [x] 5. Test: PDF amounts come from the frozen copy.

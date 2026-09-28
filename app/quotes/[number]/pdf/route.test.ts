@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createQuote } from "@/lib/db/queries";
+import {
+  createQuote,
+  getQuoteByNumber,
+  updateSettings,
+} from "@/lib/db/queries";
 import { db } from "@/lib/db/client";
-import { defaultConfiguration } from "@/lib/db/seed";
+import { defaultConfiguration, defaultSettings } from "@/lib/db/seed";
+import * as quoteDocumentModule from "@/lib/pdf/quote-document";
 import { visitors } from "@/lib/db/schema";
 import { VISITOR_COOKIE_NAME } from "@/lib/visitor";
 import { GET } from "./route";
@@ -11,6 +16,11 @@ import { GET } from "./route";
 // applied (`npm run db:migrate`).
 
 vi.mock("next/headers", () => ({ cookies: vi.fn() }));
+vi.mock("@/lib/pdf/quote-document", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/pdf/quote-document")>();
+  return { ...actual, QuoteDocument: vi.fn(actual.QuoteDocument) };
+});
 
 async function mockVisitorCookie(visitorId: string | undefined): Promise<void> {
   const { cookies } = await import("next/headers");
@@ -83,5 +93,31 @@ describe("GET /quotes/[number]/pdf", () => {
     });
 
     expect(response.status).toBe(404);
+  });
+
+  it("renders the PDF from the quote's frozen amounts, unaffected by a later settings change", async () => {
+    const visitorId = randomUUID();
+    const configuration = defaultConfiguration();
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration,
+    });
+    const frozenQuote = await getQuoteByNumber(visitorId, saved.number);
+
+    await updateSettings(visitorId, {
+      ...defaultSettings(),
+      marginRate: defaultSettings().marginRate.plus("0.5"),
+    });
+    await mockVisitorCookie(visitorId);
+
+    const response = await GET(new Request("http://localhost/"), {
+      params: Promise.resolve({ number: saved.number }),
+    });
+
+    expect(response.status).toBe(200);
+    const mockedQuoteDocument = vi.mocked(quoteDocumentModule.QuoteDocument);
+    const renderedQuote = mockedQuoteDocument.mock.calls.at(-1)?.[0].quote;
+    expect(renderedQuote?.resultSnapshot).toEqual(frozenQuote?.resultSnapshot);
   });
 });
