@@ -54,9 +54,17 @@ export function Configurator({ settingsFormValues }: ConfiguratorProps) {
         />
       </div>
       <div className="lg:sticky lg:top-6 lg:col-span-2 lg:self-start">
-        <PriceSummary price={price} />
+        <PriceSummary
+          price={price}
+          configuration={configuration}
+          notes={notes}
+        />
       </div>
-      <MobilePriceBar price={price} />
+      <MobilePriceBar
+        price={price}
+        configuration={configuration}
+        notes={notes}
+      />
     </div>
   );
 }

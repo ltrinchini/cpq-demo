@@ -11,13 +11,16 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { formatCurrency } from "@/lib/format";
-import type { PriceResult } from "@/lib/pricing/types";
+import type { Configuration, PriceResult } from "@/lib/pricing/types";
 import { CalculationDetailsList } from "./calculation-details";
 import { PriceBreakdown } from "./price-breakdown";
 import { RecalculatingAmount } from "./recalculating-amount";
+import { SaveQuoteDialog } from "./save-quote-dialog";
 
 interface MobilePriceBarProps {
   price: PriceResult;
+  configuration: Configuration;
+  notes: string;
 }
 
 /**
@@ -26,7 +29,11 @@ interface MobilePriceBarProps {
  * reachable while configuring; tapping the price area opens the full
  * breakdown. Replaces `PriceSummary` below `lg`.
  */
-export function MobilePriceBar({ price }: MobilePriceBarProps) {
+export function MobilePriceBar({
+  price,
+  configuration,
+  notes,
+}: MobilePriceBarProps) {
   const { currency, total, unitPrice } = price;
 
   return (
@@ -45,9 +52,11 @@ export function MobilePriceBar({ price }: MobilePriceBarProps) {
               / bag
             </span>
           </DrawerTrigger>
-          <Button type="button" className="shrink-0 rounded-md">
-            Save quote
-          </Button>
+          <SaveQuoteDialog
+            configuration={configuration}
+            notes={notes}
+            triggerClassName="shrink-0 rounded-md"
+          />
         </div>
       </div>
 

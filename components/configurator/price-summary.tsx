@@ -1,12 +1,14 @@
-import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
-import type { PriceResult } from "@/lib/pricing/types";
+import type { Configuration, PriceResult } from "@/lib/pricing/types";
 import { CalculationDetails } from "./calculation-details";
 import { PriceBreakdown } from "./price-breakdown";
 import { RecalculatingAmount } from "./recalculating-amount";
+import { SaveQuoteDialog } from "./save-quote-dialog";
 
 interface PriceSummaryProps {
   price: PriceResult;
+  configuration: Configuration;
+  notes: string;
 }
 
 /**
@@ -14,7 +16,11 @@ interface PriceSummaryProps {
  * (`docs/design.md`, "Configurator (desktop)"). Desktop only: below `lg`,
  * `MobilePriceBar` replaces it with a sticky bar and a detail sheet.
  */
-export function PriceSummary({ price }: PriceSummaryProps) {
+export function PriceSummary({
+  price,
+  configuration,
+  notes,
+}: PriceSummaryProps) {
   const { currency, total, unitPrice, pricePerKg } = price;
 
   return (
@@ -38,9 +44,11 @@ export function PriceSummary({ price }: PriceSummaryProps) {
 
       <CalculationDetails price={price} />
 
-      <Button type="button" className="rounded-md">
-        Save quote
-      </Button>
+      <SaveQuoteDialog
+        configuration={configuration}
+        notes={notes}
+        triggerClassName="rounded-md"
+      />
     </div>
   );
 }
