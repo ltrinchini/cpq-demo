@@ -1,3 +1,11 @@
+x-app-build: &app-build
+  build:
+    context: .
+    args:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?}
+  environment:
+    DATABASE_URL: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@db:5432/${POSTGRES_DB:?}
+
 services:
   db:
     image: postgres:18-alpine
@@ -14,27 +22,36 @@ services:
       timeout: 5s
       retries: 5
 
-  # Runs `npm run db:purge` once a day. Interim: there is no application
-  # image yet (see specs/007-demo-polish), so this installs the app straight
-  # from the mounted source instead of building from a Dockerfile. 007
-  # replaces this with the application image once one exists.
-  purge:
-    image: node:24-alpine
+  # Applies pending migrations, then serves the application (Dockerfile).
+  app:
+    <<: *app-build
     restart: unless-stopped
-    working_dir: /app
-    volumes:
-      - .:/app
-      - purge-node-modules:/app/node_modules
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@db:5432/${POSTGRES_DB:?}
+    ports:
+      - "3000:3000"
     depends_on:
       db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ > /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Runs `npm run db:purge` once a day, from the same image as `app` so it
+  # starts instantly instead of reinstalling dependencies every day. Waits
+  # on `app` rather than `db` alone, so migrations have already run and the
+  # schema it purges against exists.
+  purge:
+    <<: *app-build
+    restart: unless-stopped
+    depends_on:
+      app:
         condition: service_healthy
     entrypoint:
       - sh
       - -c
       - |
-        npm ci
         while true; do
           npm run db:purge
           sleep 86400
@@ -42,4 +59,3 @@ services:
 
 volumes:
   db-data:
-  purge-node-modules:
