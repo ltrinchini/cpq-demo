@@ -1,10 +1,12 @@
 const QUOTE_NUMBER_TIME_ZONE = "America/Toronto";
 
 /**
- * `Q-YYMMDD-XXXX`: `date` formatted as a calendar day in America/Toronto,
- * and `counter` padded to 4 digits.
+ * `Q-YYMMDD-`: `date`'s calendar day in America/Toronto. Shared by
+ * `nextQuoteNumber` and by the database query that counts a visitor's
+ * quotes for the day (`number LIKE`), so both agree on what "today" means
+ * without duplicating the time zone conversion.
  */
-function formatQuoteNumber(date: Date, counter: number): string {
+export function quoteNumberPrefix(date: Date): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: QUOTE_NUMBER_TIME_ZONE,
     year: "2-digit",
@@ -14,7 +16,7 @@ function formatQuoteNumber(date: Date, counter: number): string {
   const part = (type: "year" | "month" | "day") =>
     parts.find((p) => p.type === type)!.value;
 
-  return `Q-${part("year")}${part("month")}${part("day")}-${String(counter).padStart(4, "0")}`;
+  return `Q-${part("year")}${part("month")}${part("day")}-`;
 }
 
 /**
@@ -23,5 +25,5 @@ function formatQuoteNumber(date: Date, counter: number): string {
  * America/Toronto, so their first quote of the day gets `0001`.
  */
 export function nextQuoteNumber(date: Date, quotesTodayCount: number): string {
-  return formatQuoteNumber(date, quotesTodayCount + 1);
+  return `${quoteNumberPrefix(date)}${String(quotesTodayCount + 1).padStart(4, "0")}`;
 }

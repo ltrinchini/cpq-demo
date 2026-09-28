@@ -2,8 +2,11 @@ import { randomUUID } from "node:crypto";
 import Decimal from "decimal.js";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
+import { calculatePrice } from "@/lib/pricing";
+import { pricingSettingsSchema } from "@/lib/pricing/validation";
 import { db } from "./client";
 import {
+  createQuote,
   ensureSandbox,
   getSettings,
   purgeInactiveSandboxes,
@@ -12,7 +15,7 @@ import {
   updateSettings,
 } from "./queries";
 import { quotes, settings, visitors } from "./schema";
-import { defaultSettings } from "./seed";
+import { defaultConfiguration, defaultSettings } from "./seed";
 
 // Integration tests: require a reachable DATABASE_URL with migrations
 // applied (`npm run db:migrate`).
@@ -317,5 +320,172 @@ describe("purgeInactiveSandboxes", () => {
     expect(count).toBe(2);
     const rows = await db.select().from(visitors);
     expect(rows.map((row) => row.id)).toEqual([activeId]);
+  });
+});
+
+describe("createQuote", () => {
+  it("recalculates the price from the settings stored in the database", async () => {
+    const visitorId = randomUUID();
+    const configuration = { ...defaultConfiguration(), quantity: 10 };
+
+    const saved = await createQuote(visitorId, {
+      customerName: "Maple & Bean Café",
+      notes: null,
+      configuration,
+    });
+
+    const expected = calculatePrice(defaultSettings(), configuration);
+    expect(saved.total).toBe(expected.total.toFixed(2));
+    const [row] = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.number, saved.number));
+    expect(row.customerName).toBe("Maple & Bean Café");
+    expect(row.currency).toBe(configuration.currency);
+    expect(row.notes).toBeNull();
+    expect(row.configuration).toEqual(configuration);
+    expect(row.total).toBe(expected.total.toFixed(2));
+  });
+
+  it("creates the sandbox for a visitor with none yet", async () => {
+    const visitorId = randomUUID();
+
+    await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    const visitor = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+    });
+    expect(visitor).toBeDefined();
+  });
+
+  it("numbers a brand-new visitor's first real quote 0002, after the sample quote", async () => {
+    const visitorId = randomUUID();
+
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    expect(saved.number).toMatch(/^Q-\d{6}-0002$/);
+  });
+
+  it("assigns consecutive numbers to two quotes saved the same day", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+
+    const first = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+    const second = await createQuote(visitorId, {
+      customerName: "Willow Street Café",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    const firstCounter = Number(first.number.slice(-4));
+    const secondCounter = Number(second.number.slice(-4));
+    expect(secondCounter).toBe(firstCounter + 1);
+  });
+
+  it("gives each visitor their own daily counter", async () => {
+    const visitorA = randomUUID();
+    const visitorB = randomUUID();
+    await ensureSandbox(visitorA);
+    await ensureSandbox(visitorB);
+
+    const savedA = await createQuote(visitorA, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+    const savedB = await createQuote(visitorB, {
+      customerName: "Willow Street Café",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    expect(savedA.number).toBe(savedB.number);
+  });
+
+  it("sets valid_until to the creation date plus the settings' quoteValidityDays", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    await updateSettings(visitorId, {
+      ...defaultSettings(),
+      quoteValidityDays: 10,
+    });
+
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    const [row] = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.number, saved.number));
+    const expectedMs = row.createdAt.getTime() + 10 * 24 * 60 * 60 * 1000;
+    expect(saved.validUntil.getTime()).toBe(expectedMs);
+    expect(row.validUntil.getTime()).toBe(expectedMs);
+  });
+
+  it("is not changed by a later settings change or reset", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    const configuration = defaultConfiguration();
+
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration,
+    });
+    await updateSettings(visitorId, {
+      ...defaultSettings(),
+      marginRate: new Decimal("0.9"),
+    });
+
+    const expected = calculatePrice(defaultSettings(), configuration);
+    const afterChange = (
+      await db.select().from(quotes).where(eq(quotes.number, saved.number))
+    )[0];
+    expect(afterChange.total).toBe(expected.total.toFixed(2));
+    expect(pricingSettingsSchema.parse(afterChange.settingsSnapshot)).toEqual(
+      defaultSettings(),
+    );
+
+    await resetSettings(visitorId);
+
+    const afterReset = (
+      await db.select().from(quotes).where(eq(quotes.number, saved.number))
+    )[0];
+    expect(afterReset.total).toBe(expected.total.toFixed(2));
+    expect(pricingSettingsSchema.parse(afterReset.settingsSnapshot)).toEqual(
+      defaultSettings(),
+    );
+  });
+
+  it("stores notes when given, and null when omitted", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: "Deliver before Friday.",
+      configuration: defaultConfiguration(),
+    });
+
+    const [row] = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.number, saved.number));
+    expect(row.notes).toBe("Deliver before Friday.");
   });
 });

@@ -1,12 +1,27 @@
-import { and, eq, lt } from "drizzle-orm";
+import { and, count, eq, like, lt } from "drizzle-orm";
+import { calculatePrice } from "@/lib/pricing";
+import type { Configuration } from "@/lib/pricing/types";
+import { pricingSettingsSchema } from "@/lib/pricing/validation";
+import { nextQuoteNumber, quoteNumberPrefix } from "@/lib/quote-number";
 import { db } from "./client";
 import { quotes, settings, visitors } from "./schema";
 import { defaultSettings, sampleQuote } from "./seed";
 import type { PricingSettings } from "@/lib/pricing/types";
-import { pricingSettingsSchema } from "@/lib/pricing/validation";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const PURGE_AFTER_DAYS = 30;
+
+const UNIQUE_VIOLATION = "23505";
+const MAX_NUMBER_ATTEMPTS = 20;
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === UNIQUE_VIOLATION
+  );
+}
 
 /**
  * The visitor's settings, from the database if their sandbox exists,
@@ -108,4 +123,82 @@ export async function purgeInactiveSandboxes(
     .returning({ id: visitors.id });
 
   return deleted.length;
+}
+
+/** Fields the visitor supplies to save a quote. */
+export interface SaveQuoteInput {
+  customerName: string;
+  notes: string | null;
+  configuration: Configuration;
+}
+
+/** What the visitor needs back after saving: enough to show a confirmation. */
+export interface SavedQuote {
+  number: string;
+  total: string;
+  validUntil: Date;
+}
+
+/**
+ * Freezes `input.configuration` as a quote: recalculates the price from the
+ * settings stored in the database (never trusting an amount sent by the
+ * browser) and snapshots both, so a later rate change or reset never
+ * changes this quote (`docs/project.md`, "Quotes"). Creates the sandbox
+ * first if it doesn't exist yet.
+ *
+ * The `Q-YYMMDD-XXXX` number is assigned inside the same transaction, from
+ * a count of the visitor's quotes for the day; on the unique constraint
+ * rejecting a race with another save, the next number is retried.
+ */
+export async function createQuote(
+  visitorId: string,
+  input: SaveQuoteInput,
+): Promise<SavedQuote> {
+  await ensureSandbox(visitorId);
+  const now = new Date();
+  const prefix = quoteNumberPrefix(now);
+
+  return db.transaction(async (tx) => {
+    const settingsRow = await tx.query.settings.findFirst({
+      where: eq(settings.visitorId, visitorId),
+    });
+    const currentSettings = pricingSettingsSchema.parse(settingsRow!.settings);
+    const resultSnapshot = calculatePrice(currentSettings, input.configuration);
+    const total = resultSnapshot.total.toFixed(2);
+    const validUntil = new Date(
+      now.getTime() + currentSettings.quoteValidityDays * ONE_DAY_MS,
+    );
+
+    const [{ value: quotesTodayCount }] = await tx
+      .select({ value: count() })
+      .from(quotes)
+      .where(
+        and(eq(quotes.visitorId, visitorId), like(quotes.number, `${prefix}%`)),
+      );
+
+    for (let attempt = 0; attempt < MAX_NUMBER_ATTEMPTS; attempt++) {
+      const number = nextQuoteNumber(now, quotesTodayCount + attempt);
+      try {
+        await tx.insert(quotes).values({
+          visitorId,
+          number,
+          customerName: input.customerName,
+          currency: input.configuration.currency,
+          notes: input.notes,
+          configuration: input.configuration,
+          settingsSnapshot: currentSettings,
+          resultSnapshot,
+          total,
+          createdAt: now,
+          validUntil,
+        });
+        return { number, total, validUntil };
+      } catch (error) {
+        if (!isUniqueViolation(error)) throw error;
+      }
+    }
+    throw new Error(
+      `Could not assign a quote number for visitor ${visitorId} after ${MAX_NUMBER_ATTEMPTS} attempts.`,
+    );
+  });
 }

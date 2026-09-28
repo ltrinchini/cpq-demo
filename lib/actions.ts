@@ -1,8 +1,15 @@
 "use server";
 
-import { getSettings, resetSettings, updateSettings } from "@/lib/db/queries";
+import { z } from "zod";
+import {
+  createQuote,
+  getSettings,
+  resetSettings,
+  updateSettings,
+} from "@/lib/db/queries";
 import type { BagSize, PricingSettings } from "@/lib/pricing/types";
 import {
+  configurationSchema,
   currenciesCategorySchema,
   greenCoffeeCategorySchema,
   laborCategorySchema,
@@ -133,4 +140,53 @@ export async function resetDemoData(): Promise<ResetDemoDataResult> {
 
   await resetSettings(visitorId);
   return { success: true };
+}
+
+const saveQuoteInputSchema = z.object({
+  customerName: z
+    .string()
+    .trim()
+    .min(1, { error: "Customer name is required" })
+    .max(200, { error: "Customer name must be 200 characters or less" }),
+  notes: z
+    .string()
+    .trim()
+    .max(2000, { error: "Notes must be 2,000 characters or less" })
+    .optional(),
+  configuration: configurationSchema,
+});
+
+export type SaveQuoteResult =
+  | { success: true; number: string }
+  | { success: false; fieldErrors: Record<string, string> };
+
+/**
+ * Saves the visitor's current configuration as a frozen quote
+ * (`docs/design.md`, "Save dialog"). The price is always recalculated on
+ * the server from the settings stored in the database, never trusted from
+ * the browser.
+ */
+export async function saveQuote(data: unknown): Promise<SaveQuoteResult> {
+  const parsed = saveQuoteInputSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, fieldErrors: fieldErrors(parsed.error) };
+  }
+
+  const visitorId = await readVisitorId();
+  if (!visitorId) {
+    return {
+      success: false,
+      fieldErrors: {
+        root: "Your sandbox could not be identified. Reload the page and try again.",
+      },
+    };
+  }
+
+  const { customerName, notes, configuration } = parsed.data;
+  const saved = await createQuote(visitorId, {
+    customerName,
+    notes: notes || null,
+    configuration,
+  });
+  return { success: true, number: saved.number };
 }

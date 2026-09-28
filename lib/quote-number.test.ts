@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { nextQuoteNumber } from "./quote-number";
+import { nextQuoteNumber, quoteNumberPrefix } from "./quote-number";
+
+describe("quoteNumberPrefix", () => {
+  it("matches the day code used by nextQuoteNumber", () => {
+    const date = new Date("2026-03-05T12:00:00Z");
+
+    expect(quoteNumberPrefix(date)).toBe("Q-260305-");
+    expect(nextQuoteNumber(date, 0)).toBe(`${quoteNumberPrefix(date)}0001`);
+  });
+});
 
 describe("nextQuoteNumber", () => {
   it("gives 0001 to a visitor's first quote of the day", () => {

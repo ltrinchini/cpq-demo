@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import Decimal from "decimal.js";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resetDemoData, saveSettingsCategory } from "./actions";
+import { resetDemoData, saveQuote, saveSettingsCategory } from "./actions";
 import { db } from "./db/client";
 import { getSettings } from "./db/queries";
-import { visitors } from "./db/schema";
-import { defaultSettings } from "./db/seed";
+import { quotes, visitors } from "./db/schema";
+import { defaultConfiguration, defaultSettings } from "./db/seed";
 import { VISITOR_COOKIE_NAME } from "./visitor";
 
 // Integration tests: require a reachable DATABASE_URL with migrations
@@ -160,5 +160,105 @@ describe("resetDemoData", () => {
     const result = await resetDemoData();
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe("saveQuote", () => {
+  it("saves a valid quote and returns its number", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveQuote({
+      customerName: "Maple & Bean Café",
+      configuration: defaultConfiguration(),
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error("expected success");
+    expect(result.number).toMatch(/^Q-\d{6}-\d{4}$/);
+    const row = await db.query.quotes.findFirst({
+      where: eq(quotes.number, result.number),
+    });
+    expect(row?.customerName).toBe("Maple & Bean Café");
+  });
+
+  it("trims the customer name and stores optional notes", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveQuote({
+      customerName: "  The Daily Grind  ",
+      notes: "Deliver before Friday.",
+      configuration: defaultConfiguration(),
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error("expected success");
+    const row = await db.query.quotes.findFirst({
+      where: eq(quotes.number, result.number),
+    });
+    expect(row?.customerName).toBe("The Daily Grind");
+    expect(row?.notes).toBe("Deliver before Friday.");
+  });
+
+  it("rejects an empty customer name and saves nothing", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveQuote({
+      customerName: "   ",
+      configuration: defaultConfiguration(),
+    });
+
+    expect(result).toEqual({
+      success: false,
+      fieldErrors: { customerName: "Customer name is required" },
+    });
+    const rows = await db
+      .select()
+      .from(quotes)
+      .where(eq(quotes.visitorId, visitorId));
+    expect(rows).toHaveLength(0);
+  });
+
+  it("rejects an invalid configuration", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveQuote({
+      customerName: "The Daily Grind",
+      configuration: { ...defaultConfiguration(), quantity: 0 },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("returns a root error when the visitor cannot be identified", async () => {
+    await mockVisitorCookie(undefined);
+
+    const result = await saveQuote({
+      customerName: "The Daily Grind",
+      configuration: defaultConfiguration(),
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("recalculates the price on the server, ignoring any amount sent by the client", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+
+    const result = await saveQuote({
+      customerName: "The Daily Grind",
+      configuration: defaultConfiguration(),
+      total: "999999.99",
+    } as unknown as Parameters<typeof saveQuote>[0]);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error("expected success");
+    const row = await db.query.quotes.findFirst({
+      where: eq(quotes.number, result.number),
+    });
+    expect(row?.total).not.toBe("999999.99");
   });
 });
