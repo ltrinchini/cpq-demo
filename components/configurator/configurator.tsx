@@ -5,6 +5,7 @@ import type { SettingsFormValues } from "@/components/settings/types";
 import { calculatePrice } from "@/lib/pricing";
 import type { Configuration } from "@/lib/pricing/types";
 import { pricingSettingsSchema } from "@/lib/pricing/validation";
+import { MobilePriceBar } from "./mobile-price-bar";
 import { OptionsForm } from "./options-form";
 import { PriceSummary } from "./price-summary";
 
@@ -43,7 +44,7 @@ export function Configurator({ settingsFormValues }: ConfiguratorProps) {
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-5">
+    <div className="grid gap-8 pb-28 lg:grid-cols-5 lg:pb-0">
       <div className="lg:col-span-3">
         <OptionsForm
           configuration={configuration}
@@ -55,6 +56,7 @@ export function Configurator({ settingsFormValues }: ConfiguratorProps) {
       <div className="lg:sticky lg:top-6 lg:col-span-2 lg:self-start">
         <PriceSummary price={price} />
       </div>
+      <MobilePriceBar price={price} />
     </div>
   );
 }
