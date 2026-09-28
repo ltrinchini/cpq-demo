@@ -4,5 +4,5 @@
 - [x] 2. "Save quote" Server Action: recalculation, frozen copy, transaction. Tests.
 - [x] 3. Save dialog and "Quote saved" message.
 - [x] 4. Quote list (desktop and mobile), empty state.
-- [ ] 5. Detail page.
+- [x] 5. Detail page.
 - [ ] 6. Check at the four widths.

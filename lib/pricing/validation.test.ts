@@ -1,5 +1,7 @@
 import Decimal from "decimal.js";
 import { describe, expect, it } from "vitest";
+import { calculatePrice } from "./index";
+import { referenceConfiguration, referenceSettings } from "./test-fixtures";
 import {
   configurationSchema,
   currenciesCategorySchema,
@@ -7,6 +9,7 @@ import {
   laborCategorySchema,
   overheadMarginCategorySchema,
   packagingCategorySchema,
+  priceResultSchema,
   pricingSettingsSchema,
   quotesCategorySchema,
   roastingCategorySchema,
@@ -380,5 +383,20 @@ describe("settings category schemas", () => {
 
   it("SETTINGS_CATEGORIES lists each category once", () => {
     expect(new Set(SETTINGS_CATEGORIES).size).toBe(SETTINGS_CATEGORIES.length);
+  });
+});
+
+describe("priceResultSchema", () => {
+  it("rehydrates a price result round-tripped through JSON, like jsonb storage", () => {
+    const price = calculatePrice(referenceSettings(), referenceConfiguration());
+    const stored = JSON.parse(JSON.stringify(price));
+
+    const result = priceResultSchema.parse(stored);
+
+    expect(result).toEqual(price);
+  });
+
+  it("rejects a malformed price result", () => {
+    expect(priceResultSchema.safeParse({ bogus: true }).success).toBe(false);
   });
 });

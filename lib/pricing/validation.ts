@@ -2,12 +2,15 @@ import Decimal from "decimal.js";
 import { z } from "zod";
 import {
   BAG_SIZES,
+  COST_LINES,
   CURRENCIES,
   GRINDS,
   ORIGINS,
   ROAST_PROFILES,
   STATIONS,
   type Configuration,
+  type PriceDetails,
+  type PriceResult,
   type PricingSettings,
 } from "./types";
 
@@ -164,3 +167,55 @@ export const configurationSchema = z.object({
     .max(MAX_QUANTITY, { error: "Number of bags must be 10,000 or less" }),
   currency: z.enum(CURRENCIES, { error: "Choose a currency from the list" }),
 }) satisfies z.ZodType<Configuration>;
+
+const priceDetailsSchema = z.object({
+  roastedKg: decimal("Roasted kg"),
+  greenCoffeeKg: decimal("Green coffee kg"),
+  batches: decimal("Batches"),
+  labor: z.record(
+    z.enum(STATIONS),
+    z.object({
+      minutes: decimal("Labor minutes"),
+      costCad: decimal("Labor cost"),
+    }),
+  ),
+  costsCad: z.object({
+    greenCoffee: decimal("Green coffee cost"),
+    packaging: decimal("Packaging cost"),
+    labor: decimal("Labor cost"),
+    directCosts: decimal("Direct costs"),
+    overhead: decimal("Overhead"),
+    totalCost: decimal("Total cost"),
+    sellingPrice: decimal("Selling price"),
+  }),
+  rates: z.object({
+    greenCoffeeUsdPerKg: decimal("Green coffee price"),
+    usdRate: decimal("USD rate"),
+    quoteCurrencyRate: decimal("Quote currency rate"),
+    lossRate: decimal("Loss rate"),
+    cycleMinutes: decimal("Batch cycle time"),
+    roasterCapacityKg: decimal("Roaster capacity"),
+    grindMinutesPerKg: decimal("Grinding time"),
+    bagWeightKg: decimal("Bag weight"),
+    packagingCostCad: decimal("Packaging cost"),
+    packingMinutes: decimal("Packing time"),
+    hourlyRatesCad: z.record(z.enum(STATIONS), decimal("Hourly rate")),
+    overheadRate: decimal("Overhead rate"),
+    marginRate: decimal("Margin rate"),
+  }),
+}) satisfies z.ZodType<PriceDetails>;
+
+/**
+ * Rehydrates a `PriceResult` frozen as jsonb (`quotes.result_snapshot`)
+ * back into one with real `Decimal` fields, the way `pricingSettingsSchema`
+ * does for `settings_snapshot`.
+ */
+export const priceResultSchema = z.object({
+  currency: z.enum(CURRENCIES),
+  unitPrice: decimal("Unit price"),
+  total: decimal("Total"),
+  pricePerKg: decimal("Price per kg"),
+  markup: decimal("Markup"),
+  lines: z.record(z.enum(COST_LINES), decimal("Cost line")),
+  details: priceDetailsSchema,
+}) satisfies z.ZodType<PriceResult>;

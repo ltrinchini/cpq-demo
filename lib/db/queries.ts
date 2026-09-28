@@ -1,7 +1,11 @@
 import { and, count, desc, eq, like, lt } from "drizzle-orm";
 import { calculatePrice } from "@/lib/pricing";
-import type { Configuration, Currency } from "@/lib/pricing/types";
-import { pricingSettingsSchema } from "@/lib/pricing/validation";
+import type { Configuration, Currency, PriceResult } from "@/lib/pricing/types";
+import {
+  configurationSchema,
+  priceResultSchema,
+  pricingSettingsSchema,
+} from "@/lib/pricing/validation";
 import { nextQuoteNumber, quoteNumberPrefix } from "@/lib/quote-number";
 import { db } from "./client";
 import { quotes, settings, visitors } from "./schema";
@@ -225,4 +229,42 @@ export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
     .from(quotes)
     .where(eq(quotes.visitorId, visitorId))
     .orderBy(desc(quotes.createdAt));
+}
+
+/** A quote's full frozen content, for the `/quotes/[number]` preview. */
+export interface QuoteDetail {
+  number: string;
+  customerName: string;
+  notes: string | null;
+  currency: Currency;
+  configuration: Configuration;
+  resultSnapshot: PriceResult;
+  createdAt: Date;
+  validUntil: Date;
+}
+
+/**
+ * A visitor's quote by number, or `null` if it doesn't exist or belongs to
+ * another visitor (every query filtered by visitor ID, `CLAUDE.md`,
+ * "Security"). Rehydrates the frozen `resultSnapshot` back into `Decimal`s.
+ */
+export async function getQuoteByNumber(
+  visitorId: string,
+  number: string,
+): Promise<QuoteDetail | null> {
+  const row = await db.query.quotes.findFirst({
+    where: and(eq(quotes.visitorId, visitorId), eq(quotes.number, number)),
+  });
+  if (!row) return null;
+
+  return {
+    number: row.number,
+    customerName: row.customerName,
+    notes: row.notes,
+    currency: row.currency,
+    configuration: configurationSchema.parse(row.configuration),
+    resultSnapshot: priceResultSchema.parse(row.resultSnapshot),
+    createdAt: row.createdAt,
+    validUntil: row.validUntil,
+  };
 }

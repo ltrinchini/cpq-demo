@@ -8,6 +8,7 @@ import { db } from "./client";
 import {
   createQuote,
   ensureSandbox,
+  getQuoteByNumber,
   getSettings,
   listQuotes,
   purgeInactiveSandboxes,
@@ -538,5 +539,47 @@ describe("listQuotes", () => {
     const result = await listQuotes(visitorId);
 
     expect(result).toHaveLength(1);
+  });
+});
+
+describe("getQuoteByNumber", () => {
+  it("returns the visitor's quote with a rehydrated result snapshot", async () => {
+    const visitorId = randomUUID();
+    const configuration = defaultConfiguration();
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: "Deliver before Friday.",
+      configuration,
+    });
+
+    const result = await getQuoteByNumber(visitorId, saved.number);
+
+    expect(result).not.toBeNull();
+    expect(result?.customerName).toBe("The Daily Grind");
+    expect(result?.notes).toBe("Deliver before Friday.");
+    expect(result?.configuration).toEqual(configuration);
+    expect(result?.resultSnapshot).toEqual(
+      calculatePrice(defaultSettings(), configuration),
+    );
+  });
+
+  it("returns null for a number that doesn't exist", async () => {
+    const result = await getQuoteByNumber(randomUUID(), "Q-260305-0001");
+
+    expect(result).toBeNull();
+  });
+
+  it("returns null for another visitor's quote", async () => {
+    const ownerId = randomUUID();
+    const otherId = randomUUID();
+    const saved = await createQuote(ownerId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    const result = await getQuoteByNumber(otherId, saved.number);
+
+    expect(result).toBeNull();
   });
 });
