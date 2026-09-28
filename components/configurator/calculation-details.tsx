@@ -9,6 +9,7 @@ import { formatCurrency } from "@/lib/format";
 import { COST_LINE_LABELS } from "@/lib/labels";
 import { COST_LINES } from "@/lib/pricing/types";
 import type { PriceResult } from "@/lib/pricing/types";
+import { RecalculatingAmount } from "./recalculating-amount";
 
 interface CalculationDetailsProps {
   price: PriceResult;
@@ -31,7 +32,9 @@ export function CalculationDetailsList({ price }: CalculationDetailsProps) {
           <div className="flex items-center justify-between gap-2 text-sm">
             <span>{COST_LINE_LABELS[line]}</span>
             <span className="tabular-nums">
-              {formatCurrency(lines[line], currency)}
+              <RecalculatingAmount
+                value={formatCurrency(lines[line], currency)}
+              />
             </span>
           </div>
           <p className="text-xs text-slate">{formulas[line]}</p>

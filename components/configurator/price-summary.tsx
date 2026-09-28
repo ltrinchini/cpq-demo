@@ -3,6 +3,7 @@ import { formatCurrency } from "@/lib/format";
 import type { PriceResult } from "@/lib/pricing/types";
 import { CalculationDetails } from "./calculation-details";
 import { PriceBreakdown } from "./price-breakdown";
+import { RecalculatingAmount } from "./recalculating-amount";
 
 interface PriceSummaryProps {
   price: PriceResult;
@@ -21,13 +22,15 @@ export function PriceSummary({ price }: PriceSummaryProps) {
       <div>
         <h2 className="text-lg font-semibold">Total price</h2>
         <p className="text-3xl font-semibold tabular-nums">
-          {formatCurrency(total, currency)}
+          <RecalculatingAmount value={formatCurrency(total, currency)} />
         </p>
         <p className="text-sm text-slate tabular-nums">
-          {formatCurrency(unitPrice, currency)} / bag
+          <RecalculatingAmount value={formatCurrency(unitPrice, currency)} /> /
+          bag
         </p>
         <p className="text-sm text-slate tabular-nums">
-          {formatCurrency(pricePerKg, currency)} / kg
+          <RecalculatingAmount value={formatCurrency(pricePerKg, currency)} /> /
+          kg
         </p>
       </div>
 

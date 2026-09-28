@@ -3,6 +3,8 @@ import { formatCurrency } from "@/lib/format";
 import { COST_LINE_LABELS } from "@/lib/labels";
 import { COST_LINES } from "@/lib/pricing/types";
 import type { PriceResult } from "@/lib/pricing/types";
+import { cn } from "@/lib/utils";
+import { RecalculatingAmount } from "./recalculating-amount";
 
 /** Roast scale colours, in the breakdown bar order (`docs/design.md`). */
 export const COST_LINE_COLOR_CLASS: Record<
@@ -35,7 +37,10 @@ export function PriceBreakdown({ price }: PriceBreakdownProps) {
         {COST_LINES.map((line) => (
           <span
             key={line}
-            className={COST_LINE_COLOR_CLASS[line]}
+            className={cn(
+              COST_LINE_COLOR_CLASS[line],
+              "motion-safe:transition-all motion-safe:duration-200",
+            )}
             style={{ width: `${widths[line].toFixed(4)}%` }}
           />
         ))}
@@ -52,7 +57,9 @@ export function PriceBreakdown({ price }: PriceBreakdownProps) {
               {COST_LINE_LABELS[line]}
             </span>
             <span className="text-sm tabular-nums">
-              {formatCurrency(lines[line], currency)}
+              <RecalculatingAmount
+                value={formatCurrency(lines[line], currency)}
+              />
             </span>
           </li>
         ))}

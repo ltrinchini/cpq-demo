@@ -81,3 +81,16 @@
     @apply font-sans;
   }
 }
+
+/* `vaul` (mobile sheet, `components/ui/drawer.tsx`) animates its slide and
+   fade through an inline stylesheet it injects at runtime, which ignores
+   `prefers-reduced-motion` and can't be reached with Tailwind classes.
+   `!important` wins over that injected stylesheet regardless of insertion
+   order (docs/design.md, "Motion"). */
+@media (prefers-reduced-motion: reduce) {
+  [data-vaul-drawer],
+  [data-vaul-overlay] {
+    transition: none !important;
+    animation: none !important;
+  }
+}

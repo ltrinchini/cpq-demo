@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/format";
 import type { PriceResult } from "@/lib/pricing/types";
 import { CalculationDetailsList } from "./calculation-details";
 import { PriceBreakdown } from "./price-breakdown";
+import { RecalculatingAmount } from "./recalculating-amount";
 
 interface MobilePriceBarProps {
   price: PriceResult;
@@ -34,11 +35,14 @@ export function MobilePriceBar({ price }: MobilePriceBarProps) {
         <div className="flex items-center justify-between gap-4">
           <DrawerTrigger className="flex min-w-0 cursor-pointer flex-col items-start text-left">
             <span className="flex items-center gap-1 text-2xl font-semibold tabular-nums">
-              {formatCurrency(total, currency)}
+              <RecalculatingAmount value={formatCurrency(total, currency)} />
               <ChevronUpIcon aria-hidden className="size-4 text-slate" />
             </span>
             <span className="text-sm text-slate tabular-nums">
-              {formatCurrency(unitPrice, currency)} / bag
+              <RecalculatingAmount
+                value={formatCurrency(unitPrice, currency)}
+              />{" "}
+              / bag
             </span>
           </DrawerTrigger>
           <Button type="button" className="shrink-0 rounded-md">
