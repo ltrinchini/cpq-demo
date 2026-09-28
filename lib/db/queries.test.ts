@@ -493,10 +493,19 @@ describe("createQuote", () => {
 });
 
 describe("listQuotes", () => {
-  it("returns an empty list for a visitor with no sandbox", async () => {
+  it("falls back to the virtual sample quote for a visitor with no sandbox", async () => {
+    const sample = sampleQuote();
+
     const result = await listQuotes(randomUUID());
 
-    expect(result).toEqual([]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      number: sample.number,
+      customerName: sample.customerName,
+      currency: sample.currency,
+      total: sample.total,
+    });
+    expect(result[0].createdAt).toBeInstanceOf(Date);
   });
 
   it("returns the visitor's quotes, most recent first", async () => {
@@ -561,6 +570,24 @@ describe("getQuoteByNumber", () => {
     expect(result?.resultSnapshot).toEqual(
       calculatePrice(defaultSettings(), configuration),
     );
+  });
+
+  it("falls back to the virtual sample quote for a visitor with no sandbox", async () => {
+    const sample = sampleQuote();
+
+    const result = await getQuoteByNumber(randomUUID(), sample.number);
+
+    expect(result).not.toBeNull();
+    expect(result).toMatchObject({
+      number: sample.number,
+      customerName: sample.customerName,
+      notes: sample.notes,
+      currency: sample.currency,
+      configuration: sample.configuration,
+      resultSnapshot: sample.resultSnapshot,
+    });
+    expect(result?.createdAt).toBeInstanceOf(Date);
+    expect(result?.validUntil).toBeInstanceOf(Date);
   });
 
   it("returns null for a number that doesn't exist", async () => {

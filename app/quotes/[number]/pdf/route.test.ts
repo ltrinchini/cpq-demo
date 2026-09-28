@@ -3,10 +3,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createQuote,
   getQuoteByNumber,
+  listQuotes,
   updateSettings,
 } from "@/lib/db/queries";
 import { db } from "@/lib/db/client";
-import { defaultConfiguration, defaultSettings } from "@/lib/db/seed";
+import {
+  defaultConfiguration,
+  defaultSettings,
+  sampleQuote,
+} from "@/lib/db/seed";
 import * as quoteDocumentModule from "@/lib/pdf/quote-document";
 import { visitors } from "@/lib/db/schema";
 import { VISITOR_COOKIE_NAME } from "@/lib/visitor";
@@ -119,5 +124,25 @@ describe("GET /quotes/[number]/pdf", () => {
     const mockedQuoteDocument = vi.mocked(quoteDocumentModule.QuoteDocument);
     const renderedQuote = mockedQuoteDocument.mock.calls.at(-1)?.[0].quote;
     expect(renderedQuote?.resultSnapshot).toEqual(frozenQuote?.resultSnapshot);
+  });
+
+  it("downloads the first visit's virtual sample quote and materializes its sandbox", async () => {
+    const visitorId = randomUUID();
+    const sample = sampleQuote();
+    await mockVisitorCookie(visitorId);
+
+    const response = await GET(new Request("http://localhost/"), {
+      params: Promise.resolve({ number: sample.number }),
+    });
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    expect(response.status).toBe(200);
+    expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+
+    const quotes = await listQuotes(visitorId);
+    expect(quotes).toHaveLength(1);
+    expect(quotes[0].number).toBe(sample.number);
+    const persisted = await getQuoteByNumber(visitorId, sample.number);
+    expect(persisted?.resultSnapshot).toEqual(sample.resultSnapshot);
   });
 });

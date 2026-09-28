@@ -1,6 +1,6 @@
 # 007 — Tasks (to refine before starting)
 
-- [ ] 1. First-visit flow.
+- [x] 1. First-visit flow.
 - [ ] 2. Copy review.
 - [ ] 3. Accessibility audit.
 - [ ] 4. Check at the four widths and in landscape.

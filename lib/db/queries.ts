@@ -216,9 +216,14 @@ export interface QuoteListItem {
   createdAt: Date;
 }
 
-/** The visitor's quotes, most recent first. */
+/**
+ * The visitor's quotes, most recent first. Before any sandbox exists,
+ * falls back to the virtual sample quote (`lib/db/seed.ts`, `sampleQuote`)
+ * so the list is never empty on a first visit (`docs/project.md`). Never
+ * writes.
+ */
 export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
-  return db
+  const rows = await db
     .select({
       number: quotes.number,
       customerName: quotes.customerName,
@@ -229,6 +234,18 @@ export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
     .from(quotes)
     .where(eq(quotes.visitorId, visitorId))
     .orderBy(desc(quotes.createdAt));
+  if (rows.length > 0) return rows;
+
+  const sample = sampleQuote();
+  return [
+    {
+      number: sample.number,
+      customerName: sample.customerName,
+      currency: sample.currency,
+      total: sample.total,
+      createdAt: sample.createdAt,
+    },
+  ];
 }
 
 /** A quote's full frozen content, for the `/quotes/[number]` preview. */
@@ -247,6 +264,9 @@ export interface QuoteDetail {
  * A visitor's quote by number, or `null` if it doesn't exist or belongs to
  * another visitor (every query filtered by visitor ID, `CLAUDE.md`,
  * "Security"). Rehydrates the frozen `resultSnapshot` back into `Decimal`s.
+ * Before any sandbox exists, falls back to the virtual sample quote
+ * (`lib/db/seed.ts`, `sampleQuote`) if `number` matches it, so the first
+ * visit's preview is never a dead link (`docs/project.md`). Never writes.
  */
 export async function getQuoteByNumber(
   visitorId: string,
@@ -255,7 +275,21 @@ export async function getQuoteByNumber(
   const row = await db.query.quotes.findFirst({
     where: and(eq(quotes.visitorId, visitorId), eq(quotes.number, number)),
   });
-  if (!row) return null;
+  if (!row) {
+    const sample = sampleQuote();
+    if (sample.number !== number) return null;
+
+    return {
+      number: sample.number,
+      customerName: sample.customerName,
+      notes: sample.notes,
+      currency: sample.currency,
+      configuration: sample.configuration,
+      resultSnapshot: sample.resultSnapshot,
+      createdAt: sample.createdAt,
+      validUntil: sample.validUntil,
+    };
+  }
 
   return {
     number: row.number,
