@@ -35,7 +35,7 @@ export function QuoteList({ quotes }: QuoteListProps) {
             <th className="py-2 pr-4 font-medium">Number</th>
             <th className="py-2 pr-4 font-medium">Customer</th>
             <th className="py-2 pr-4 font-medium">Date</th>
-            <th className="py-2 pr-4 font-medium">Total</th>
+            <th className="py-2 pr-4 text-right font-medium">Total</th>
             <th className="py-2 font-medium">Currency</th>
           </tr>
         </thead>
@@ -57,7 +57,7 @@ export function QuoteList({ quotes }: QuoteListProps) {
               <td className="py-3 pr-4 text-slate">
                 {formatDate(quote.createdAt)}
               </td>
-              <td className="py-3 pr-4 tabular-nums">
+              <td className="py-3 pr-4 text-right tabular-nums">
                 {formatCurrency(quote.total, quote.currency)}
               </td>
               <td className="py-3">{quote.currency}</td>
