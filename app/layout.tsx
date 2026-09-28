@@ -11,10 +11,27 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
+const title = "Lantern Roasters · CPQ";
+const description =
+  "Configure, price and quote demo for a fictional coffee roastery.";
+
 export const metadata: Metadata = {
-  title: "Lantern Roasters · CPQ",
-  description:
-    "Configure, price and quote demo for a fictional coffee roastery.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    siteName: title,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({
