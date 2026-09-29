@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+review.md
 
 # Dependencies and builds
 node_modules/
