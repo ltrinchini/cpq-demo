@@ -111,11 +111,14 @@ These rules are the reference for the pricing engine. Default values are fiction
 
 - Quantities shown in pounds as well as kilograms.
 - Blends (several origins with percentages).
+- Quote actions: delete a quote, quick actions on quote rows, swipe gestures on mobile.
+- UI polish: clearer calculation breakdown, explanatory text in Pricing settings, input styling and layout fixes.
 
 ## Version 2
 
 - Dark mode.
 - Customer book: a few fictional customers per sandbox, customer picked from a list when saving a quote, adding a customer (name, contact, address).
+- Saved blends: save a blend of origins as a reusable product, picked in the configurator instead of entering percentages each time.
 
 ## Out of scope (v1)
 

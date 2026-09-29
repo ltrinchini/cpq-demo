@@ -1,4 +1,4 @@
-# 011 — Tasks (to refine before starting)
+# 013 — Tasks (to refine before starting)
 
 - [ ] 1. Customer schema and migration, fictional customers in `seed.ts`.
 - [ ] 2. Pick and add a customer in the "Save quote" dialog.

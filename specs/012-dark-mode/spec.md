@@ -1,4 +1,4 @@
-# 010 — Dark mode (v2)
+# 012 — Dark mode (v2)
 
 ## Goal
 

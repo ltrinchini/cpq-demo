@@ -16,8 +16,11 @@ Order in which features are built. Each feature has its own folder in `specs/` w
 
 - [ ] 008 — Pounds display
 - [ ] 009 — Blends
+- [ ] 010 — Quote actions
+- [ ] 011 — UI polish
 
 ## Version 2
 
-- [ ] 010 — Dark mode
-- [ ] 011 — Customer book
+- [ ] 012 — Dark mode
+- [ ] 013 — Customer book
+- [ ] 014 — Saved blends
