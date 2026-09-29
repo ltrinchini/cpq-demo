@@ -1,10 +1,16 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { breakdownWidths } from "@/lib/breakdown";
 import type { QuoteDetail } from "@/lib/db/queries";
-import { formatCurrency, formatDate, formatQuantity } from "@/lib/format";
+import {
+  formatCurrency,
+  formatDate,
+  formatLb,
+  formatQuantity,
+} from "@/lib/format";
 import { PDF_COLORS, PDF_COST_LINE_COLORS } from "@/lib/pdf/colors";
 import { FONT_SANS, FONT_SERIF, registerPdfFonts } from "@/lib/pdf/fonts";
 import {
+  BAG_SIZE_KG,
   BAG_SIZE_LABELS,
   COST_LINE_LABELS,
   GRIND_LABELS,
@@ -224,7 +230,8 @@ export function QuoteDocument({ quote }: QuoteDocumentProps) {
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Bag size</Text>
               <Text style={styles.tableValue}>
-                {BAG_SIZE_LABELS[configuration.bagSize]}
+                {BAG_SIZE_LABELS[configuration.bagSize]} (
+                {formatLb(BAG_SIZE_KG[configuration.bagSize])})
               </Text>
             </View>
             <View style={styles.tableRow}>

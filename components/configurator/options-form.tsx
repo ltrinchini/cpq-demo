@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { formatLb } from "@/lib/format";
 import {
+  BAG_SIZE_KG,
   BAG_SIZE_LABELS,
   CURRENCY_LABELS,
   GRIND_LABELS,
@@ -147,6 +149,9 @@ export function OptionsForm({
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+        <p className="text-xs text-slate">
+          ≈ {formatLb(BAG_SIZE_KG[configuration.bagSize])}
+        </p>
       </div>
 
       <div className="grid gap-1.5">

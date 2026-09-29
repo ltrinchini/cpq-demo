@@ -5,7 +5,7 @@
       `BAG_SIZE_LABELS` in `lib/labels.ts`.
 - [x] 2. Green coffee quantity in the calculation details formula
       (`lib/calculation-details.ts`) uses `formatKg`.
-- [ ] 3. Bag size shows its lb equivalent:
+- [x] 3. Bag size shows its lb equivalent:
   - Configurator (`options-form.tsx`): the `ToggleGroup` labels stay as
     they are (mobile width at 360 px); a small helper line below shows
     the lb equivalent of the selected size.

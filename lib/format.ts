@@ -92,15 +92,25 @@ export function formatQuantity(
 /** 1 kg in lb (`docs/project.md`, "Version 1.1"). */
 const LB_PER_KG = new Decimal("2.20462");
 
+function formatNumber(value: Decimal): string {
+  return new Intl.NumberFormat("en-CA", { maximumFractionDigits: 2 }).format(
+    value.toNumber(),
+  );
+}
+
 /**
  * A weight in kg with its lb equivalent, for display
  * (`"11.9 kg (26.23 lb)"`). Display only: pricing stays in kg.
  */
 export function formatKg(kg: Decimal | string | number): string {
   const amount = new Decimal(kg);
-  const format = (value: Decimal) =>
-    new Intl.NumberFormat("en-CA", { maximumFractionDigits: 2 }).format(
-      value.toNumber(),
-    );
-  return `${format(amount)} kg (${format(amount.times(LB_PER_KG))} lb)`;
+  return `${formatNumber(amount)} kg (${formatNumber(amount.times(LB_PER_KG))} lb)`;
+}
+
+/**
+ * A weight in kg's lb equivalent alone, for display (`"2.2 lb"`) — pairs
+ * with a kg value already shown elsewhere, such as a compact label.
+ */
+export function formatLb(kg: Decimal | string | number): string {
+  return `${formatNumber(new Decimal(kg).times(LB_PER_KG))} lb`;
 }

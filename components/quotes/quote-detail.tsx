@@ -1,7 +1,13 @@
 import { PriceBreakdown } from "@/components/configurator/price-breakdown";
 import type { QuoteDetail as QuoteDetailData } from "@/lib/db/queries";
-import { formatCurrency, formatDate, formatQuantity } from "@/lib/format";
 import {
+  formatCurrency,
+  formatDate,
+  formatLb,
+  formatQuantity,
+} from "@/lib/format";
+import {
+  BAG_SIZE_KG,
   BAG_SIZE_LABELS,
   GRIND_LABELS,
   ORIGIN_LABELS,
@@ -61,7 +67,7 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
           <OrderRow label="Grind" value={GRIND_LABELS[configuration.grind]} />
           <OrderRow
             label="Bag size"
-            value={BAG_SIZE_LABELS[configuration.bagSize]}
+            value={`${BAG_SIZE_LABELS[configuration.bagSize]} (${formatLb(BAG_SIZE_KG[configuration.bagSize])})`}
           />
           <OrderRow
             label="Quantity"

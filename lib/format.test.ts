@@ -4,6 +4,7 @@ import {
   formatCurrency,
   formatDate,
   formatKg,
+  formatLb,
   formatPercent,
   formatQuantity,
   formatRate,
@@ -112,5 +113,13 @@ describe("formatKg", () => {
   it("rounds the lb equivalent to two decimals", () => {
     expect(formatKg("0.25")).toBe("0.25 kg (0.55 lb)");
     expect(formatKg("5")).toBe("5 kg (11.02 lb)");
+  });
+});
+
+describe("formatLb", () => {
+  it("formats a weight's lb equivalent alone", () => {
+    expect(formatLb("0.25")).toBe("0.55 lb");
+    expect(formatLb("1")).toBe("2.2 lb");
+    expect(formatLb("5")).toBe("11.02 lb");
   });
 });
