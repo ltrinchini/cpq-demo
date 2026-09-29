@@ -14,7 +14,7 @@ Order in which features are built. Each feature has its own folder in `specs/` w
 
 ## Version 1.1
 
-- [ ] 008 — Pounds display
+- [x] 008 — Pounds display
 - [ ] 009 — Blends
 - [ ] 010 — Quote actions
 - [ ] 011 — UI polish
