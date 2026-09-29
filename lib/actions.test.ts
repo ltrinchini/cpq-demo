@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 import Decimal from "decimal.js";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resetDemoData, saveQuote, saveSettingsCategory } from "./actions";
+import {
+  deleteQuote,
+  resetDemoData,
+  saveQuote,
+  saveSettingsCategory,
+} from "./actions";
 import { db } from "./db/client";
 import { getSettings } from "./db/queries";
 import { quotes, visitors } from "./db/schema";
@@ -260,5 +265,52 @@ describe("saveQuote", () => {
       where: eq(quotes.number, result.number),
     });
     expect(row?.total).not.toBe("999999.99");
+  });
+});
+
+describe("deleteQuote", () => {
+  it("deletes the visitor's own quote", async () => {
+    const visitorId = randomUUID();
+    await mockVisitorCookie(visitorId);
+    const saved = await saveQuote({
+      customerName: "The Daily Grind",
+      configuration: defaultConfiguration(),
+    });
+    if (!saved.success) throw new Error("expected success");
+
+    const result = await deleteQuote(saved.number);
+
+    expect(result).toEqual({ success: true });
+    const row = await db.query.quotes.findFirst({
+      where: eq(quotes.number, saved.number),
+    });
+    expect(row).toBeUndefined();
+  });
+
+  it("does not delete another visitor's quote", async () => {
+    const ownerId = randomUUID();
+    await mockVisitorCookie(ownerId);
+    const saved = await saveQuote({
+      customerName: "The Daily Grind",
+      configuration: defaultConfiguration(),
+    });
+    if (!saved.success) throw new Error("expected success");
+
+    await mockVisitorCookie(randomUUID());
+    const result = await deleteQuote(saved.number);
+
+    expect(result).toEqual({ success: true });
+    const row = await db.query.quotes.findFirst({
+      where: eq(quotes.number, saved.number),
+    });
+    expect(row).toBeDefined();
+  });
+
+  it("returns an error when the visitor cannot be identified", async () => {
+    await mockVisitorCookie(undefined);
+
+    const result = await deleteQuote("Q-260305-0001");
+
+    expect(result.success).toBe(false);
   });
 });

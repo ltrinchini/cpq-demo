@@ -7,6 +7,7 @@ import { pricingSettingsSchema } from "@/lib/pricing/validation";
 import { db } from "./client";
 import {
   createQuote,
+  deleteQuote,
   ensureSandbox,
   getQuoteByNumber,
   getSettings,
@@ -549,6 +550,16 @@ describe("listQuotes", () => {
 
     expect(result).toHaveLength(1);
   });
+
+  it("returns an empty list, not the sample quote, once the sandbox exists with no quotes left", async () => {
+    const visitorId = randomUUID();
+    await ensureSandbox(visitorId);
+    await db.delete(quotes).where(eq(quotes.visitorId, visitorId));
+
+    const result = await listQuotes(visitorId);
+
+    expect(result).toEqual([]);
+  });
 });
 
 describe("getQuoteByNumber", () => {
@@ -596,6 +607,17 @@ describe("getQuoteByNumber", () => {
     expect(result).toBeNull();
   });
 
+  it("returns null for the sample number once the sandbox exists without it, instead of reviving it", async () => {
+    const visitorId = randomUUID();
+    const sample = sampleQuote();
+    await ensureSandbox(visitorId);
+    await db.delete(quotes).where(eq(quotes.visitorId, visitorId));
+
+    const result = await getQuoteByNumber(visitorId, sample.number);
+
+    expect(result).toBeNull();
+  });
+
   it("returns null for another visitor's quote", async () => {
     const ownerId = randomUUID();
     const otherId = randomUUID();
@@ -608,5 +630,54 @@ describe("getQuoteByNumber", () => {
     const result = await getQuoteByNumber(otherId, saved.number);
 
     expect(result).toBeNull();
+  });
+});
+
+describe("deleteQuote", () => {
+  it("deletes an existing quote", async () => {
+    const visitorId = randomUUID();
+    const saved = await createQuote(visitorId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    await deleteQuote(visitorId, saved.number);
+
+    const result = await getQuoteByNumber(visitorId, saved.number);
+    expect(result).toBeNull();
+  });
+
+  it("leaves another visitor's quote untouched", async () => {
+    const ownerId = randomUUID();
+    const otherId = randomUUID();
+    const saved = await createQuote(ownerId, {
+      customerName: "The Daily Grind",
+      notes: null,
+      configuration: defaultConfiguration(),
+    });
+
+    await deleteQuote(otherId, saved.number);
+
+    const result = await getQuoteByNumber(ownerId, saved.number);
+    expect(result).not.toBeNull();
+  });
+
+  it("is a no-op for a number that doesn't exist", async () => {
+    const visitorId = randomUUID();
+
+    await expect(
+      deleteQuote(visitorId, "Q-260305-0001"),
+    ).resolves.toBeUndefined();
+  });
+
+  it("persists the deletion of the virtual sample quote for a visitor with no sandbox", async () => {
+    const visitorId = randomUUID();
+    const sample = sampleQuote();
+
+    await deleteQuote(visitorId, sample.number);
+
+    const result = await listQuotes(visitorId);
+    expect(result.map((q) => q.number)).not.toContain(sample.number);
   });
 });

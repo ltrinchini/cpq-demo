@@ -3,6 +3,7 @@
 import { z } from "zod";
 import {
   createQuote,
+  deleteQuote as deleteQuoteRow,
   getSettings,
   resetSettings,
   updateSettings,
@@ -189,4 +190,25 @@ export async function saveQuote(data: unknown): Promise<SaveQuoteResult> {
     configuration,
   });
   return { success: true, number: saved.number };
+}
+
+export type DeleteQuoteResult =
+  { success: true } | { success: false; error: string };
+
+/**
+ * Deletes one of the visitor's quotes by number (`docs/design.md`,
+ * "Quotes"). Always scoped to the visitor's own data.
+ */
+export async function deleteQuote(number: string): Promise<DeleteQuoteResult> {
+  const visitorId = await readVisitorId();
+  if (!visitorId) {
+    return {
+      success: false,
+      error:
+        "Your sandbox could not be identified. Reload the page and try again.",
+    };
+  }
+
+  await deleteQuoteRow(visitorId, number);
+  return { success: true };
 }

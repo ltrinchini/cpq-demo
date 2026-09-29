@@ -219,8 +219,10 @@ export interface QuoteListItem {
 /**
  * The visitor's quotes, most recent first. Before any sandbox exists,
  * falls back to the virtual sample quote (`lib/db/seed.ts`, `sampleQuote`)
- * so the list is never empty on a first visit (`docs/project.md`). Never
- * writes.
+ * so the list is never empty on a first visit (`docs/project.md`). Once a
+ * sandbox exists, an empty result is returned as-is (e.g. after deleting
+ * every quote): the sample never resurfaces once the visitor has a real
+ * sandbox. Never writes.
  */
 export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
   const rows = await db
@@ -235,6 +237,12 @@ export async function listQuotes(visitorId: string): Promise<QuoteListItem[]> {
     .where(eq(quotes.visitorId, visitorId))
     .orderBy(desc(quotes.createdAt));
   if (rows.length > 0) return rows;
+
+  const sandbox = await db.query.visitors.findFirst({
+    where: eq(visitors.id, visitorId),
+    columns: { id: true },
+  });
+  if (sandbox) return [];
 
   const sample = sampleQuote();
   return [
@@ -266,7 +274,9 @@ export interface QuoteDetail {
  * "Security"). Rehydrates the frozen `resultSnapshot` back into `Decimal`s.
  * Before any sandbox exists, falls back to the virtual sample quote
  * (`lib/db/seed.ts`, `sampleQuote`) if `number` matches it, so the first
- * visit's preview is never a dead link (`docs/project.md`). Never writes.
+ * visit's preview is never a dead link (`docs/project.md`). Once a sandbox
+ * exists, the fallback no longer applies (e.g. after the sample quote has
+ * been deleted). Never writes.
  */
 export async function getQuoteByNumber(
   visitorId: string,
@@ -276,6 +286,12 @@ export async function getQuoteByNumber(
     where: and(eq(quotes.visitorId, visitorId), eq(quotes.number, number)),
   });
   if (!row) {
+    const sandbox = await db.query.visitors.findFirst({
+      where: eq(visitors.id, visitorId),
+      columns: { id: true },
+    });
+    if (sandbox) return null;
+
     const sample = sampleQuote();
     if (sample.number !== number) return null;
 
@@ -301,4 +317,21 @@ export async function getQuoteByNumber(
     createdAt: row.createdAt,
     validUntil: row.validUntil,
   };
+}
+
+/**
+ * Deletes a visitor's quote by number. Scoped to the visitor ID like every
+ * other query (`CLAUDE.md`, "Security"): a number belonging to another
+ * visitor, or that doesn't exist, is a silent no-op. Creates the sandbox
+ * first, so deleting the virtual sample quote (before any sandbox exists)
+ * persists instead of resurfacing on the next visit.
+ */
+export async function deleteQuote(
+  visitorId: string,
+  number: string,
+): Promise<void> {
+  await ensureSandbox(visitorId);
+  await db
+    .delete(quotes)
+    .where(and(eq(quotes.visitorId, visitorId), eq(quotes.number, number)));
 }
