@@ -61,7 +61,7 @@ export function defaultSettings(): PricingSettings {
 /** Default configuration shown on the first visit and used for the sample quote. */
 export function defaultConfiguration(): Configuration {
   return {
-    originId: "ethiopia-yirgacheffe",
+    origins: [{ originId: "ethiopia-yirgacheffe", percentage: 1 }],
     roast: "medium",
     grind: "espresso",
     bagSize: "1kg",

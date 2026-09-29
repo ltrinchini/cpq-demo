@@ -54,7 +54,7 @@ describe("calculatePackaging", () => {
       calculate({
         roast: "dark",
         grind: "whole",
-        originId: "kenya-nyeri",
+        origins: [{ originId: "kenya-nyeri", percentage: 1 }],
         currency: "GBP",
       }),
     ).toBe("38.4");

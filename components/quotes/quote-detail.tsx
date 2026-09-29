@@ -58,7 +58,7 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
         <dl className="grid gap-1 text-sm">
           <OrderRow
             label="Coffee"
-            value={ORIGIN_LABELS[configuration.originId]}
+            value={ORIGIN_LABELS[configuration.origins[0].originId]}
           />
           <OrderRow
             label="Roast"

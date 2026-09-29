@@ -63,9 +63,37 @@ describe("calculateGreenCoffee", () => {
 
   it("uses the price of the chosen origin", () => {
     expectDecimal(
-      calculate({ originId: "kenya-nyeri" }).costCad,
+      calculate({
+        origins: [{ originId: "kenya-nyeri", percentage: 1 }],
+      }).costCad,
       "373.0285714286",
     );
+  });
+
+  it("weights the price by each origin's percentage, in a blend", () => {
+    const result = calculate({
+      origins: [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.6 },
+        { originId: "kenya-nyeri", percentage: 0.4 },
+      ],
+    });
+
+    // 0.6 × 8.40 + 0.4 × 9.60 = 8.88 USD/kg.
+    expectDecimal(result.usdPerKg, "8.88");
+    expectDecimal(result.costCad, "345.0514285714");
+  });
+
+  it("supports a 3-origin blend", () => {
+    const result = calculate({
+      origins: [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.5 },
+        { originId: "colombia-huila", percentage: 0.3 },
+        { originId: "kenya-nyeri", percentage: 0.2 },
+      ],
+    });
+
+    // 0.5 × 8.40 + 0.3 × 7.20 + 0.2 × 9.60 = 8.28 USD/kg.
+    expectDecimal(result.usdPerKg, "8.28");
   });
 
   it("converts the USD price with the USD exchange rate", () => {

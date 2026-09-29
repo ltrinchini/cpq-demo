@@ -15,6 +15,7 @@ import {
 } from "./types";
 
 export const MAX_QUANTITY = 10_000;
+export const MAX_BLEND_ORIGINS = 3;
 
 /**
  * Accepts a number, a numeric string (form fields, Postgres `numeric`
@@ -58,6 +59,14 @@ function rate(label: string) {
     .refine((value) => value.lt(1), {
       error: `${label} must be less than 100%`,
     });
+}
+
+/** A blend origin's share, from above 0% to 100% inclusive. */
+function percentage(label: string) {
+  return z
+    .number({ error: `${label} must be a number` })
+    .gt(0, { error: `${label} must be greater than 0%` })
+    .lte(1, { error: `${label} must be 100% or less` });
 }
 
 export const pricingSettingsSchema = z.object({
@@ -153,8 +162,33 @@ export const quotesCategorySchema = pricingSettingsSchema.pick({
   quoteValidityDays: true,
 });
 
-export const configurationSchema = z.object({
+const blendOriginSchema = z.object({
   originId: z.enum(ORIGINS, { error: "Choose a coffee from the list" }),
+  percentage: percentage("Percentage"),
+});
+
+export const configurationSchema = z.object({
+  origins: z
+    .array(blendOriginSchema)
+    .min(1, { error: "Choose at least one origin" })
+    .max(MAX_BLEND_ORIGINS, {
+      error: `A blend can have at most ${MAX_BLEND_ORIGINS} origins`,
+    })
+    .refine(
+      (origins) =>
+        new Set(origins.map((origin) => origin.originId)).size ===
+        origins.length,
+      { error: "Choose a different origin for each line" },
+    )
+    .refine(
+      (origins) =>
+        origins
+          .reduce((sum, origin) => sum.plus(origin.percentage), new Decimal(0))
+          .minus(1)
+          .abs()
+          .lte("0.0001"),
+      { error: "Percentages must add up to 100%" },
+    ),
   roast: z.enum(ROAST_PROFILES, {
     error: "Choose a roast profile from the list",
   }),

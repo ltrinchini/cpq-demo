@@ -28,6 +28,7 @@ import {
   ORIGINS,
   ROAST_PROFILES,
   type Configuration,
+  type OriginId,
 } from "@/lib/pricing/types";
 import { MAX_QUANTITY } from "@/lib/pricing/validation";
 
@@ -64,10 +65,14 @@ export function OptionsForm({
       <div className="grid gap-1.5">
         <Label htmlFor="origin">Coffee</Label>
         <Select
-          value={configuration.originId}
-          onValueChange={(value) =>
-            update("originId", value as Configuration["originId"])
-          }
+          value={configuration.origins[0].originId}
+          onValueChange={(value) => {
+            const [first, ...rest] = configuration.origins;
+            update("origins", [
+              { ...first, originId: value as OriginId },
+              ...rest,
+            ]);
+          }}
         >
           <SelectTrigger id="origin" className="w-full rounded-md">
             <SelectValue />

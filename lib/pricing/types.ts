@@ -69,8 +69,15 @@ export interface PricingSettings {
   quoteValidityDays: number;
 }
 
-export interface Configuration {
+export interface BlendOrigin {
   originId: OriginId;
+  /** Share of the blend, as a fraction (`0.35` for 35%). */
+  percentage: number;
+}
+
+export interface Configuration {
+  /** Up to `MAX_BLEND_ORIGINS` origins, percentages summing to 1. */
+  origins: BlendOrigin[];
   roast: RoastProfile;
   grind: Grind;
   bagSize: BagSize;

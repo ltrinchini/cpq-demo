@@ -48,7 +48,7 @@ export function referenceSettings(): PricingSettings {
 /** Reference example from the spec: 24 bags of 1 kg, medium, espresso. */
 export function referenceConfiguration(): Configuration {
   return {
-    originId: "ethiopia-yirgacheffe",
+    origins: [{ originId: "ethiopia-yirgacheffe", percentage: 1 }],
     roast: "medium",
     grind: "espresso",
     bagSize: "1kg",

@@ -212,7 +212,7 @@ export function QuoteDocument({ quote }: QuoteDocumentProps) {
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Coffee</Text>
               <Text style={styles.tableValue}>
-                {ORIGIN_LABELS[configuration.originId]}
+                {ORIGIN_LABELS[configuration.origins[0].originId]}
               </Text>
             </View>
             <View style={styles.tableRow}>

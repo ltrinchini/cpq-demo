@@ -56,7 +56,7 @@ function validSettings() {
 
 function validConfiguration() {
   return {
-    originId: "ethiopia-yirgacheffe",
+    origins: [{ originId: "ethiopia-yirgacheffe", percentage: 1 }],
     roast: "medium",
     grind: "espresso",
     bagSize: "1kg",
@@ -248,7 +248,6 @@ describe("configurationSchema", () => {
   });
 
   it.each([
-    ["originId", "Choose a coffee from the list"],
     ["roast", "Choose a roast profile from the list"],
     ["grind", "Choose a grind from the list"],
     ["bagSize", "Choose a bag size from the list"],
@@ -257,6 +256,101 @@ describe("configurationSchema", () => {
     expect(configurationErrors([field], "unknown")).toEqual([
       { path: [field], message },
     ]);
+  });
+
+  describe("blend origins", () => {
+    it("accepts up to 3 origins whose percentages add up to 100%", () => {
+      const origins = [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.5 },
+        { originId: "colombia-huila", percentage: 0.3 },
+        { originId: "kenya-nyeri", percentage: 0.2 },
+      ];
+
+      expect(configurationErrors(["origins"], origins)).toBeUndefined();
+    });
+
+    it("rejects an unknown origin", () => {
+      expect(
+        configurationErrors(["origins", 0, "originId"], "peru-cajamarca"),
+      ).toEqual([
+        {
+          path: ["origins", 0, "originId"],
+          message: "Choose a coffee from the list",
+        },
+      ]);
+    });
+
+    it("rejects an empty blend", () => {
+      expect(configurationErrors(["origins"], [])).toEqual([
+        { path: ["origins"], message: "Choose at least one origin" },
+        { path: ["origins"], message: "Percentages must add up to 100%" },
+      ]);
+    });
+
+    it("rejects more than 3 origins", () => {
+      const origins = [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.25 },
+        { originId: "colombia-huila", percentage: 0.25 },
+        { originId: "brazil-cerrado", percentage: 0.25 },
+        { originId: "kenya-nyeri", percentage: 0.25 },
+      ];
+
+      expect(configurationErrors(["origins"], origins)).toEqual([
+        {
+          path: ["origins"],
+          message: "A blend can have at most 3 origins",
+        },
+      ]);
+    });
+
+    it("rejects the same origin twice", () => {
+      const origins = [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.5 },
+        { originId: "ethiopia-yirgacheffe", percentage: 0.5 },
+      ];
+
+      expect(configurationErrors(["origins"], origins)).toEqual([
+        {
+          path: ["origins"],
+          message: "Choose a different origin for each line",
+        },
+      ]);
+    });
+
+    it("rejects percentages that don't add up to 100%", () => {
+      const origins = [
+        { originId: "ethiopia-yirgacheffe", percentage: 0.5 },
+        { originId: "kenya-nyeri", percentage: 0.3 },
+      ];
+
+      expect(configurationErrors(["origins"], origins)).toEqual([
+        { path: ["origins"], message: "Percentages must add up to 100%" },
+      ]);
+    });
+
+    it.each([
+      [
+        0,
+        [
+          "Percentage must be greater than 0%",
+          "Percentages must add up to 100%",
+        ],
+      ],
+      [
+        1.5,
+        ["Percentage must be 100% or less", "Percentages must add up to 100%"],
+      ],
+      ["0.5", ["Percentage must be a number"]],
+    ] as const)("rejects a percentage of %j", (percentage, messages) => {
+      expect(
+        configurationErrors(["origins", 0, "percentage"], percentage),
+      ).toEqual(
+        messages.map((message, index) => ({
+          path: index === 0 ? ["origins", 0, "percentage"] : ["origins"],
+          message,
+        })),
+      );
+    });
   });
 });
 

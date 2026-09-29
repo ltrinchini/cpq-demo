@@ -58,8 +58,7 @@ export function calculatePrice(
         sellingPrice: selling.sellingPrice,
       },
       rates: {
-        greenCoffeeUsdPerKg:
-          settings.greenCoffeeUsdPerKg[configuration.originId],
+        greenCoffeeUsdPerKg: greenCoffee.usdPerKg,
         usdRate: settings.exchangeRatesCad.USD,
         quoteCurrencyRate: quote.rate,
         lossRate: profile.lossRate,

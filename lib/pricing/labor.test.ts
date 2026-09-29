@@ -145,7 +145,10 @@ describe("calculateLabor", () => {
 
   it("does not depend on the origin or quote currency", () => {
     expectDecimal(
-      calculate({ originId: "kenya-nyeri", currency: "EUR" }).costCad,
+      calculate({
+        origins: [{ originId: "kenya-nyeri", percentage: 1 }],
+        currency: "EUR",
+      }).costCad,
       "57.6",
     );
   });

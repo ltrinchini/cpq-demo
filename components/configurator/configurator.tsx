@@ -11,7 +11,7 @@ import { PriceSummary } from "./price-summary";
 
 /** The 001 reference example (`specs/004-configurator/spec.md`). */
 const DEFAULT_CONFIGURATION: Configuration = {
-  originId: "ethiopia-yirgacheffe",
+  origins: [{ originId: "ethiopia-yirgacheffe", percentage: 1 }],
   roast: "medium",
   grind: "espresso",
   bagSize: "1kg",
