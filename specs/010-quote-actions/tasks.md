@@ -3,4 +3,4 @@
 - [x] 1. Delete a quote: server action, visitor-scoped, tests.
 - [x] 2. Confirmation bottom sheet for delete, reusing the "reset demo data" pattern.
 - [x] 3. PDF and delete buttons on quote rows.
-- [ ] 4. Swipe-left gesture on mobile, checked at 360 px.
+- [x] 4. Swipe-left gesture on mobile, checked at 360 px.

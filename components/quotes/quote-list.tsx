@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DeleteQuoteConfirm } from "@/components/quotes/delete-quote-confirm";
+import { SwipeableQuoteRow } from "@/components/quotes/swipeable-quote-row";
 import { Button } from "@/components/ui/button";
 import type { QuoteListItem } from "@/lib/db/queries";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -79,10 +80,20 @@ export function QuoteList({ quotes }: QuoteListProps) {
 
       <ul className="divide-y divide-frost lg:hidden">
         {quotes.map((quote) => (
-          <li key={quote.number} className="py-3">
+          <SwipeableQuoteRow
+            key={quote.number}
+            actions={
+              <>
+                <Button asChild variant="link" size="sm">
+                  <a href={`/quotes/${quote.number}/pdf`}>Download PDF</a>
+                </Button>
+                <DeleteQuoteConfirm number={quote.number} />
+              </>
+            }
+          >
             <Link
               href={`/quotes/${quote.number}`}
-              className="flex flex-col gap-0.5"
+              className="flex flex-col gap-0.5 py-3"
             >
               <span className="flex items-center justify-between gap-4 font-medium">
                 <span>{quote.number}</span>
@@ -95,13 +106,7 @@ export function QuoteList({ quotes }: QuoteListProps) {
                 <span>{formatDate(quote.createdAt)}</span>
               </span>
             </Link>
-            <div className="mt-1 flex items-center gap-1">
-              <Button asChild variant="link" size="sm">
-                <a href={`/quotes/${quote.number}/pdf`}>Download PDF</a>
-              </Button>
-              <DeleteQuoteConfirm number={quote.number} />
-            </div>
-          </li>
+          </SwipeableQuoteRow>
         ))}
       </ul>
     </>
