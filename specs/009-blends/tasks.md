@@ -11,7 +11,7 @@
       2 more rows, each with its own percentage field except the last one,
       whose percentage is the automatic remainder to 100%; a row can be
       removed, which recomputes the new last row's remainder.
-- [ ] 3. Quote detail and PDF: the "Coffee" row shows the blend composition
+- [x] 3. Quote detail and PDF: the "Coffee" row shows the blend composition
       (a single origin is unchanged; a blend reads e.g. "70% Ethiopia
       Yirgacheffe, 30% Kenya Nyeri"). No migration needed: `configuration`
       and the frozen snapshots are `jsonb`.

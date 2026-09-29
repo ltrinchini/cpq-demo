@@ -1,5 +1,7 @@
+import { formatPercent } from "@/lib/format";
 import type {
   BagSize,
+  BlendOrigin,
   CostLine,
   Currency,
   Grind,
@@ -63,3 +65,19 @@ export const CURRENCY_LABELS: Record<Currency, string> = {
   EUR: "Euro (EUR)",
   GBP: "British pound (GBP)",
 };
+
+/**
+ * A blend's composition, for display (`"Ethiopia Yirgacheffe"` for a
+ * single origin, `"70% Ethiopia Yirgacheffe, 30% Kenya Nyeri"` for a
+ * blend — `specs/009-blends/spec.md`).
+ */
+export function formatBlend(origins: BlendOrigin[]): string {
+  if (origins.length === 1) return ORIGIN_LABELS[origins[0].originId];
+
+  return origins
+    .map(
+      (origin) =>
+        `${formatPercent(String(origin.percentage))} ${ORIGIN_LABELS[origin.originId]}`,
+    )
+    .join(", ");
+}

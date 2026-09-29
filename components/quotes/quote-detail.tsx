@@ -9,8 +9,8 @@ import {
 import {
   BAG_SIZE_KG,
   BAG_SIZE_LABELS,
+  formatBlend,
   GRIND_LABELS,
-  ORIGIN_LABELS,
   ROAST_PROFILE_LABELS,
 } from "@/lib/labels";
 
@@ -56,10 +56,7 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
       <div>
         <h3 className="mb-2 text-sm font-semibold">Order</h3>
         <dl className="grid gap-1 text-sm">
-          <OrderRow
-            label="Coffee"
-            value={ORIGIN_LABELS[configuration.origins[0].originId]}
-          />
+          <OrderRow label="Coffee" value={formatBlend(configuration.origins)} />
           <OrderRow
             label="Roast"
             value={ROAST_PROFILE_LABELS[configuration.roast]}

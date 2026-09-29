@@ -13,8 +13,8 @@ import {
   BAG_SIZE_KG,
   BAG_SIZE_LABELS,
   COST_LINE_LABELS,
+  formatBlend,
   GRIND_LABELS,
-  ORIGIN_LABELS,
   ROAST_PROFILE_LABELS,
 } from "@/lib/labels";
 import { COST_LINES } from "@/lib/pricing/types";
@@ -212,7 +212,7 @@ export function QuoteDocument({ quote }: QuoteDocumentProps) {
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Coffee</Text>
               <Text style={styles.tableValue}>
-                {ORIGIN_LABELS[configuration.origins[0].originId]}
+                {formatBlend(configuration.origins)}
               </Text>
             </View>
             <View style={styles.tableRow}>
