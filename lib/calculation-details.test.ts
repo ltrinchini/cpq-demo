@@ -11,7 +11,7 @@ describe("calculationFormulas", () => {
     const price = calculatePrice(referenceSettings(), referenceConfiguration());
 
     expect(calculationFormulas(price)).toEqual({
-      greenCoffee: "28.57 kg green × US$8.40 × 1.36",
+      greenCoffee: "28.57 kg (62.99 lb) green × US$8.40 × 1.36",
       packaging: "24 bags × $1.60",
       labor: "36 min × $32.00/h + 72 min × $26.00/h + 18 min × $24.00/h",
       overhead: "$422.40 × 15%",
@@ -27,7 +27,9 @@ describe("calculationFormulas", () => {
 
     const formulas = calculationFormulas(price);
 
-    expect(formulas.greenCoffee).toBe("28.57 kg green × US$8.40 × 1.36 ÷ 1.36");
+    expect(formulas.greenCoffee).toBe(
+      "28.57 kg (62.99 lb) green × US$8.40 × 1.36 ÷ 1.36",
+    );
     expect(formulas.packaging).toBe("24 bags × $1.60 ÷ 1.36");
     expect(formulas.margin).toBe("$485.76 × 53.8% markup ÷ 1.36");
   });

@@ -1,5 +1,6 @@
 import {
   formatCurrency,
+  formatKg,
   formatPercent,
   formatQuantity,
   formatRate,
@@ -28,7 +29,7 @@ export function calculationFormulas(
     `${formatQuantity(details.labor[station].minutes, "min")} × ${formatCurrency(rates.hourlyRatesCad[station], "CAD")}/h`;
 
   return {
-    greenCoffee: `${formatQuantity(details.greenCoffeeKg, "kg green")} × ${formatCurrency(rates.greenCoffeeUsdPerKg, "USD")} × ${formatRate(rates.usdRate)}${suffix}`,
+    greenCoffee: `${formatKg(details.greenCoffeeKg)} green × ${formatCurrency(rates.greenCoffeeUsdPerKg, "USD")} × ${formatRate(rates.usdRate)}${suffix}`,
     packaging: `${formatQuantity(quantity, "bag", "bags")} × ${formatCurrency(rates.packagingCostCad, "CAD")}${suffix}`,
     labor: `${STATIONS.map(stationTerm).join(" + ")}${suffix}`,
     overhead: `${formatCurrency(costsCad.directCosts, "CAD")} × ${formatPercent(rates.overheadRate)}${suffix}`,
