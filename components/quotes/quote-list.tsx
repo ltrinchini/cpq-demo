@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { DeleteQuoteConfirm } from "@/components/quotes/delete-quote-confirm";
+import { Button } from "@/components/ui/button";
 import type { QuoteListItem } from "@/lib/db/queries";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -36,7 +38,8 @@ export function QuoteList({ quotes }: QuoteListProps) {
             <th className="py-2 pr-4 font-medium">Customer</th>
             <th className="py-2 pr-4 font-medium">Date</th>
             <th className="py-2 pr-4 text-right font-medium">Total</th>
-            <th className="py-2 font-medium">Currency</th>
+            <th className="py-2 pr-4 font-medium">Currency</th>
+            <th className="py-2 font-medium">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +63,15 @@ export function QuoteList({ quotes }: QuoteListProps) {
               <td className="py-3 pr-4 text-right tabular-nums">
                 {formatCurrency(quote.total, quote.currency)}
               </td>
-              <td className="py-3">{quote.currency}</td>
+              <td className="py-3 pr-4">{quote.currency}</td>
+              <td className="py-3">
+                <div className="flex items-center gap-1">
+                  <Button asChild variant="link" size="sm">
+                    <a href={`/quotes/${quote.number}/pdf`}>Download PDF</a>
+                  </Button>
+                  <DeleteQuoteConfirm number={quote.number} />
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -68,10 +79,10 @@ export function QuoteList({ quotes }: QuoteListProps) {
 
       <ul className="divide-y divide-frost lg:hidden">
         {quotes.map((quote) => (
-          <li key={quote.number}>
+          <li key={quote.number} className="py-3">
             <Link
               href={`/quotes/${quote.number}`}
-              className="flex flex-col gap-0.5 py-3"
+              className="flex flex-col gap-0.5"
             >
               <span className="flex items-center justify-between gap-4 font-medium">
                 <span>{quote.number}</span>
@@ -84,6 +95,12 @@ export function QuoteList({ quotes }: QuoteListProps) {
                 <span>{formatDate(quote.createdAt)}</span>
               </span>
             </Link>
+            <div className="mt-1 flex items-center gap-1">
+              <Button asChild variant="link" size="sm">
+                <a href={`/quotes/${quote.number}/pdf`}>Download PDF</a>
+              </Button>
+              <DeleteQuoteConfirm number={quote.number} />
+            </div>
           </li>
         ))}
       </ul>
