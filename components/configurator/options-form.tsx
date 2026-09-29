@@ -18,19 +18,17 @@ import {
   BAG_SIZE_LABELS,
   CURRENCY_LABELS,
   GRIND_LABELS,
-  ORIGIN_LABELS,
   ROAST_PROFILE_LABELS,
 } from "@/lib/labels";
 import {
   BAG_SIZES,
   CURRENCIES,
   GRINDS,
-  ORIGINS,
   ROAST_PROFILES,
   type Configuration,
-  type OriginId,
 } from "@/lib/pricing/types";
 import { MAX_QUANTITY } from "@/lib/pricing/validation";
+import { BlendOriginsField } from "./blend-origins-field";
 
 /** Coffee green marks the selected item (`docs/design.md`, "Application colours"). */
 const SEGMENTED_ITEM_CLASS =
@@ -63,28 +61,11 @@ export function OptionsForm({
   return (
     <div className="grid gap-6">
       <div className="grid gap-1.5">
-        <Label htmlFor="origin">Coffee</Label>
-        <Select
-          value={configuration.origins[0].originId}
-          onValueChange={(value) => {
-            const [first, ...rest] = configuration.origins;
-            update("origins", [
-              { ...first, originId: value as OriginId },
-              ...rest,
-            ]);
-          }}
-        >
-          <SelectTrigger id="origin" className="w-full rounded-md">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ORIGINS.map((origin) => (
-              <SelectItem key={origin} value={origin}>
-                {ORIGIN_LABELS[origin]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label>Coffee</Label>
+        <BlendOriginsField
+          origins={configuration.origins}
+          onChange={(origins) => update("origins", origins)}
+        />
       </div>
 
       <div className="grid gap-1.5">

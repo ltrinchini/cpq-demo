@@ -6,7 +6,7 @@
       becomes a single-origin blend (100%) so the existing suite stays
       valid unchanged; new tests cover 2–3 origins, the weighted price and
       validation errors.
-- [ ] 2. Configurator: the "Coffee" field becomes an origins section — one
+- [x] 2. Configurator: the "Coffee" field becomes an origins section — one
       origin by default (no percentage shown); "+ Add origin" reveals up to
       2 more rows, each with its own percentage field except the last one,
       whose percentage is the automatic remainder to 100%; a row can be
