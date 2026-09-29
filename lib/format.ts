@@ -88,3 +88,19 @@ export function formatQuantity(
   const unit = amount.equals(1) ? singular : plural;
   return `${number} ${unit}`;
 }
+
+/** 1 kg in lb (`docs/project.md`, "Version 1.1"). */
+const LB_PER_KG = new Decimal("2.20462");
+
+/**
+ * A weight in kg with its lb equivalent, for display
+ * (`"11.9 kg (26.23 lb)"`). Display only: pricing stays in kg.
+ */
+export function formatKg(kg: Decimal | string | number): string {
+  const amount = new Decimal(kg);
+  const format = (value: Decimal) =>
+    new Intl.NumberFormat("en-CA", { maximumFractionDigits: 2 }).format(
+      value.toNumber(),
+    );
+  return `${format(amount)} kg (${format(amount.times(LB_PER_KG))} lb)`;
+}

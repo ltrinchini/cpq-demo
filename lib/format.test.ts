@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatCurrency,
   formatDate,
+  formatKg,
   formatPercent,
   formatQuantity,
   formatRate,
@@ -96,5 +97,20 @@ describe("formatQuantity", () => {
 
   it("uses the singular form for exactly one", () => {
     expect(formatQuantity(1, "bag", "bags")).toBe("1 bag");
+  });
+});
+
+describe("formatKg", () => {
+  it("formats a weight with its lb equivalent", () => {
+    expect(formatKg("11.9")).toBe("11.9 kg (26.23 lb)");
+  });
+
+  it("accepts a Decimal", () => {
+    expect(formatKg(new Decimal("1"))).toBe("1 kg (2.2 lb)");
+  });
+
+  it("rounds the lb equivalent to two decimals", () => {
+    expect(formatKg("0.25")).toBe("0.25 kg (0.55 lb)");
+    expect(formatKg("5")).toBe("5 kg (11.02 lb)");
   });
 });

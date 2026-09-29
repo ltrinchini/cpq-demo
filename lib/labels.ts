@@ -35,6 +35,13 @@ export const BAG_SIZE_LABELS: Record<BagSize, string> = {
   "5kg": "5 kg bag",
 };
 
+/** Weight in kg for each `BagSize`, for its lb equivalent (`formatKg`). */
+export const BAG_SIZE_KG: Record<BagSize, string> = {
+  "250g": "0.25",
+  "1kg": "1",
+  "5kg": "5",
+};
+
 export const STATION_LABELS: Record<Station, string> = {
   roasting: "Roasting",
   grinding: "Grinding",
