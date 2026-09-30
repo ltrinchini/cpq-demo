@@ -3,7 +3,7 @@
 - [x] 1. Configurator (desktop): replace the "Show calculation details" text
       trigger with a full-width outlined secondary button; the accordion stays
       closed on arrival.
-- [ ] 2. `Pricing settings`: one short explanatory sentence (`max-w-prose`,
+- [x] 2. `Pricing settings`: one short explanatory sentence (`max-w-prose`,
       `text-sm text-slate`) at the top of each category panel, shown in both
       the desktop panel and the mobile accordion.
 - [ ] 3. Text/number inputs on a white background: `bg-surface` (existing

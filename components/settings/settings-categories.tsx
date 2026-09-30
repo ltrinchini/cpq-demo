@@ -33,6 +33,41 @@ const CATEGORY_LABELS: Record<SettingsCategory, string> = {
   quotes: "Quotes",
 };
 
+/** One sentence per category, shown above its fields, saying what it prices. */
+const CATEGORY_DESCRIPTIONS: Record<SettingsCategory, string> = {
+  greenCoffee:
+    "Purchase price of each origin, before roasting. Converted to CAD at the USD exchange rate.",
+  roasting:
+    "Roasting loses weight, so more green coffee is bought than the roasted weight sold. Batch cycle times and roaster capacity set the roasting labor.",
+  packaging:
+    "Cost of the bag, label and valve, and the time to fill and seal one bag, by bag size.",
+  labor:
+    "Hourly rate per station, and grinding time per roasted kilogram for each grind.",
+  overheadMargin:
+    "Overhead is added to direct costs (green coffee, packaging and labor). Margin is taken on the selling price, not added to cost.",
+  currencies:
+    "Value of one unit of each currency in Canadian dollars. Quotes are calculated in CAD, then converted at the end.",
+  quotes: "How long a saved quote stays valid after its issue date.",
+};
+
+/** A category's description followed by its form, for both layouts. */
+function CategoryPanel({
+  category,
+  values,
+}: {
+  category: SettingsCategory;
+  values: SettingsFormValues;
+}) {
+  return (
+    <div className="grid gap-4">
+      <p className="max-w-prose text-sm text-slate">
+        {CATEGORY_DESCRIPTIONS[category]}
+      </p>
+      {CATEGORY_PANELS[category](values)}
+    </div>
+  );
+}
+
 /**
  * One form per category, each narrowed to the slice of `initialValues` it
  * edits. Shared by the desktop single-panel view and the mobile accordion,
@@ -118,7 +153,7 @@ export function SettingsCategories({
           </ul>
         </nav>
         <div className="flex-1 rounded-lg border border-frost bg-surface p-6">
-          {CATEGORY_PANELS[selected](initialValues)}
+          <CategoryPanel category={selected} values={initialValues} />
         </div>
       </div>
 
@@ -133,7 +168,7 @@ export function SettingsCategories({
               {CATEGORY_LABELS[category]}
             </AccordionTrigger>
             <AccordionContent>
-              {CATEGORY_PANELS[category](initialValues)}
+              <CategoryPanel category={category} values={initialValues} />
             </AccordionContent>
           </AccordionItem>
         ))}
