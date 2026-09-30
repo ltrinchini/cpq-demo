@@ -6,6 +6,7 @@ import { useSettingsCategoryForm } from "@/hooks/use-settings-category-form";
 import { normalizeDecimalInput } from "@/lib/format";
 import { quotesCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { QuotesFormValues } from "./types";
 
 export function QuotesForm({
@@ -28,15 +29,19 @@ export function QuotesForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      <SettingsField
-        id="quoteValidityDays"
-        label="Quote validity"
-        unit="days"
-        value={quoteValidityDays}
-        onChange={(value) => setQuoteValidityDays(normalizeDecimalInput(value))}
-        inputMode="numeric"
-        error={errors.quoteValidityDays}
-      />
+      <SettingsFieldGrid>
+        <SettingsField
+          id="quoteValidityDays"
+          label="Quote validity"
+          unit="days"
+          value={quoteValidityDays}
+          onChange={(value) =>
+            setQuoteValidityDays(normalizeDecimalInput(value))
+          }
+          inputMode="numeric"
+          error={errors.quoteValidityDays}
+        />
+      </SettingsFieldGrid>
       <div className="flex items-center gap-3">
         <Button type="submit" className="rounded-md" disabled={pending}>
           Save changes

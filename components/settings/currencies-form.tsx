@@ -8,6 +8,7 @@ import { CURRENCY_LABELS } from "@/lib/labels";
 import { CURRENCIES, type ForeignCurrency } from "@/lib/pricing/types";
 import { currenciesCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { CurrenciesFormValues } from "./types";
 
 const FOREIGN_CURRENCIES = CURRENCIES.filter(
@@ -34,22 +35,24 @@ export function CurrenciesForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      {FOREIGN_CURRENCIES.map((currency) => (
-        <SettingsField
-          key={currency}
-          id={`exchangeRatesCad-${currency}`}
-          label={CURRENCY_LABELS[currency]}
-          unit={`CAD / ${currency}`}
-          value={exchangeRatesCad[currency]}
-          onChange={(value) =>
-            setExchangeRatesCad((current) => ({
-              ...current,
-              [currency]: normalizeDecimalInput(value),
-            }))
-          }
-          error={errors[`exchangeRatesCad.${currency}`]}
-        />
-      ))}
+      <SettingsFieldGrid>
+        {FOREIGN_CURRENCIES.map((currency) => (
+          <SettingsField
+            key={currency}
+            id={`exchangeRatesCad-${currency}`}
+            label={CURRENCY_LABELS[currency]}
+            unit={`CAD / ${currency}`}
+            value={exchangeRatesCad[currency]}
+            onChange={(value) =>
+              setExchangeRatesCad((current) => ({
+                ...current,
+                [currency]: normalizeDecimalInput(value),
+              }))
+            }
+            error={errors[`exchangeRatesCad.${currency}`]}
+          />
+        ))}
+      </SettingsFieldGrid>
       <div className="flex items-center gap-3">
         <Button type="submit" className="rounded-md" disabled={pending}>
           Save changes

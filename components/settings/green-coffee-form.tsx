@@ -8,6 +8,7 @@ import { normalizeDecimalInput } from "@/lib/format";
 import { ORIGINS } from "@/lib/pricing/types";
 import { greenCoffeeCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { GreenCoffeeFormValues } from "./types";
 
 export function GreenCoffeeForm({
@@ -30,22 +31,24 @@ export function GreenCoffeeForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      {ORIGINS.map((origin) => (
-        <SettingsField
-          key={origin}
-          id={`greenCoffeeUsdPerKg-${origin}`}
-          label={ORIGIN_LABELS[origin]}
-          unit="US$/kg"
-          value={greenCoffeeUsdPerKg[origin]}
-          onChange={(value) =>
-            setGreenCoffeeUsdPerKg((current) => ({
-              ...current,
-              [origin]: normalizeDecimalInput(value),
-            }))
-          }
-          error={errors[`greenCoffeeUsdPerKg.${origin}`]}
-        />
-      ))}
+      <SettingsFieldGrid>
+        {ORIGINS.map((origin) => (
+          <SettingsField
+            key={origin}
+            id={`greenCoffeeUsdPerKg-${origin}`}
+            label={ORIGIN_LABELS[origin]}
+            unit="US$/kg"
+            value={greenCoffeeUsdPerKg[origin]}
+            onChange={(value) =>
+              setGreenCoffeeUsdPerKg((current) => ({
+                ...current,
+                [origin]: normalizeDecimalInput(value),
+              }))
+            }
+            error={errors[`greenCoffeeUsdPerKg.${origin}`]}
+          />
+        ))}
+      </SettingsFieldGrid>
       <div className="flex items-center gap-3">
         <Button type="submit" className="rounded-md" disabled={pending}>
           Save changes

@@ -8,6 +8,7 @@ import { GRIND_LABELS, STATION_LABELS } from "@/lib/labels";
 import { GRINDS, STATIONS } from "@/lib/pricing/types";
 import { laborCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { LaborFormValues } from "./types";
 
 export function LaborForm({
@@ -33,38 +34,40 @@ export function LaborForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      {STATIONS.map((station) => (
-        <SettingsField
-          key={station}
-          id={`hourlyRatesCad-${station}`}
-          label={`${STATION_LABELS[station]} hourly rate`}
-          unit="CAD/hr"
-          value={hourlyRatesCad[station]}
-          onChange={(value) =>
-            setHourlyRatesCad((current) => ({
-              ...current,
-              [station]: normalizeDecimalInput(value),
-            }))
-          }
-          error={errors[`hourlyRatesCad.${station}`]}
-        />
-      ))}
-      {GRINDS.map((grind) => (
-        <SettingsField
-          key={grind}
-          id={`grindMinutesPerKg-${grind}`}
-          label={`${GRIND_LABELS[grind]} grinding time`}
-          unit="min/kg"
-          value={grindMinutesPerKg[grind]}
-          onChange={(value) =>
-            setGrindMinutesPerKg((current) => ({
-              ...current,
-              [grind]: normalizeDecimalInput(value),
-            }))
-          }
-          error={errors[`grindMinutesPerKg.${grind}`]}
-        />
-      ))}
+      <SettingsFieldGrid>
+        {STATIONS.map((station) => (
+          <SettingsField
+            key={station}
+            id={`hourlyRatesCad-${station}`}
+            label={`${STATION_LABELS[station]} hourly rate`}
+            unit="CAD/hr"
+            value={hourlyRatesCad[station]}
+            onChange={(value) =>
+              setHourlyRatesCad((current) => ({
+                ...current,
+                [station]: normalizeDecimalInput(value),
+              }))
+            }
+            error={errors[`hourlyRatesCad.${station}`]}
+          />
+        ))}
+        {GRINDS.map((grind) => (
+          <SettingsField
+            key={grind}
+            id={`grindMinutesPerKg-${grind}`}
+            label={`${GRIND_LABELS[grind]} grinding time`}
+            unit="min/kg"
+            value={grindMinutesPerKg[grind]}
+            onChange={(value) =>
+              setGrindMinutesPerKg((current) => ({
+                ...current,
+                [grind]: normalizeDecimalInput(value),
+              }))
+            }
+            error={errors[`grindMinutesPerKg.${grind}`]}
+          />
+        ))}
+      </SettingsFieldGrid>
       <div className="flex items-center gap-3">
         <Button type="submit" className="rounded-md" disabled={pending}>
           Save changes

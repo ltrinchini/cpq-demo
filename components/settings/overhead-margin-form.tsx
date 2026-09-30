@@ -12,6 +12,7 @@ import {
 } from "@/lib/format";
 import { overheadMarginCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { OverheadMarginFormValues } from "./types";
 
 /** Same formula as `calculateSellingPrice` (`lib/pricing/selling-price.ts`). */
@@ -53,22 +54,24 @@ export function OverheadMarginForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      <SettingsField
-        id="overheadRate"
-        label="Overhead"
-        unit="%"
-        value={overheadRate}
-        onChange={(value) => setOverheadRate(normalizeDecimalInput(value))}
-        error={errors.overheadRate}
-      />
-      <SettingsField
-        id="marginRate"
-        label="Margin"
-        unit="%"
-        value={marginRate}
-        onChange={(value) => setMarginRate(normalizeDecimalInput(value))}
-        error={errors.marginRate}
-      />
+      <SettingsFieldGrid>
+        <SettingsField
+          id="overheadRate"
+          label="Overhead"
+          unit="%"
+          value={overheadRate}
+          onChange={(value) => setOverheadRate(normalizeDecimalInput(value))}
+          error={errors.overheadRate}
+        />
+        <SettingsField
+          id="marginRate"
+          label="Margin"
+          unit="%"
+          value={marginRate}
+          onChange={(value) => setMarginRate(normalizeDecimalInput(value))}
+          error={errors.marginRate}
+        />
+      </SettingsFieldGrid>
       {markup && (
         <p className="text-sm text-slate">
           Equivalent markup: {formatPercent(markup)}

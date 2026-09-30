@@ -16,7 +16,8 @@ interface SettingsFieldProps {
  * One editable row: label, input with the unit as a suffix, error message
  * below (`docs/design.md`, "Settings"). `readOnly` renders the value as
  * plain text instead of an input, for the one field that can't be edited
- * (bag weight).
+ * (bag weight). The unit column has a fixed width, so inputs line up within
+ * a `SettingsFieldGrid` column whatever the unit's length.
  */
 export function SettingsField({
   id,
@@ -47,7 +48,7 @@ export function SettingsField({
             aria-describedby={error ? `${id}-error` : undefined}
           />
         )}
-        <span className="text-sm whitespace-nowrap text-slate">{unit}</span>
+        <span className="w-20 shrink-0 text-sm text-slate">{unit}</span>
       </div>
       {error && (
         <p id={`${id}-error`} className="text-sm text-error">

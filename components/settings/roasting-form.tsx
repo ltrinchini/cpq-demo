@@ -12,6 +12,7 @@ import { ROAST_PROFILE_LABELS } from "@/lib/labels";
 import { ROAST_PROFILES } from "@/lib/pricing/types";
 import { roastingCategorySchema } from "@/lib/pricing/validation";
 import { SettingsField } from "./settings-field";
+import { SettingsFieldGrid } from "./settings-field-grid";
 import type { RoastingFormValues } from "./types";
 
 /** Local editing state: `lossRate` as the percentage text the field shows. */
@@ -65,9 +66,10 @@ export function RoastingForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      {ROAST_PROFILES.map((profile) => (
-        <div key={profile} className="grid gap-4 sm:grid-cols-2">
+      <SettingsFieldGrid>
+        {ROAST_PROFILES.map((profile) => (
           <SettingsField
+            key={profile}
             id={`roastProfiles-${profile}-lossRate`}
             label={`${ROAST_PROFILE_LABELS[profile]} loss rate`}
             unit="%"
@@ -83,7 +85,10 @@ export function RoastingForm({
             }
             error={errors[`roastProfiles.${profile}.lossRate`]}
           />
+        ))}
+        {ROAST_PROFILES.map((profile) => (
           <SettingsField
+            key={profile}
             id={`roastProfiles-${profile}-cycleMinutes`}
             label={`${ROAST_PROFILE_LABELS[profile]} batch cycle time`}
             unit="min"
@@ -99,16 +104,18 @@ export function RoastingForm({
             }
             error={errors[`roastProfiles.${profile}.cycleMinutes`]}
           />
-        </div>
-      ))}
-      <SettingsField
-        id="roasterCapacityKg"
-        label="Roaster capacity"
-        unit="kg green coffee / batch"
-        value={roasterCapacityKg}
-        onChange={(value) => setRoasterCapacityKg(normalizeDecimalInput(value))}
-        error={errors.roasterCapacityKg}
-      />
+        ))}
+        <SettingsField
+          id="roasterCapacityKg"
+          label="Roaster capacity (green coffee)"
+          unit="kg / batch"
+          value={roasterCapacityKg}
+          onChange={(value) =>
+            setRoasterCapacityKg(normalizeDecimalInput(value))
+          }
+          error={errors.roasterCapacityKg}
+        />
+      </SettingsFieldGrid>
       <div className="flex items-center gap-3">
         <Button type="submit" className="rounded-md" disabled={pending}>
           Save changes
