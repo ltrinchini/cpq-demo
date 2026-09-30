@@ -1,7 +1,16 @@
-# 011 — Tasks (to refine before starting)
+# 011 — Tasks
 
-- [ ] 1. Make the calculation breakdown more visible in the configurator.
-- [ ] 2. Explanatory text per submenu in `Pricing setting`.
-- [ ] 3. White background for text/number inputs.
-- [ ] 4. Fix input width bug in `Pricing setting` submenus.
-- [ ] 5. Header button shape on mobile and tablet.
+- [x] 1. Configurator (desktop): replace the "Show calculation details" text
+      trigger with a full-width outlined secondary button; the accordion stays
+      closed on arrival.
+- [ ] 2. `Pricing settings`: one short explanatory sentence (`max-w-prose`,
+      `text-sm text-slate`) at the top of each category panel, shown in both
+      the desktop panel and the mobile accordion.
+- [ ] 3. Text/number inputs on a white background: `bg-surface` (existing
+      token) on `SettingsField`, the quantity field and the notes textarea.
+- [ ] 4. `Pricing setting` inputs: the input width no longer depends on the
+      unit suffix length (fixed-width unit column, so inputs and units align
+      within a panel).
+- [ ] 5. Header tabs on mobile and tablet (below `lg`) as a segmented control:
+      bordered `rounded-md` group, active tab tinted with a coffee green
+      border, like the configurator's segmented buttons. Desktop unchanged.
