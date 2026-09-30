@@ -16,9 +16,9 @@
       without leaving the panel half empty. Roasting fields are grouped by
       measure (loss rates, cycle times) to fill the rows. Roaster capacity's
       unit shortened to "kg / batch" to fit the column, with "(green coffee)"
-      moved to its label. Drop the
-      accordion's paragraph margin, which pushed read-only values off their
-      unit on mobile and tablet.
-- [ ] 5. Header tabs on mobile and tablet (below `lg`) as a segmented control:
-      bordered `rounded-md` group, active tab tinted with a coffee green
-      border, like the configurator's segmented buttons. Desktop unchanged.
+      moved to its label. Drop the accordion's paragraph margin, which pushed
+      read-only values off their unit on mobile and tablet.
+- [x] 5. Header tabs as segmented buttons at every width, like the
+      configurator's: outlined `rounded-md` tabs spaced `gap-2`, the active one
+      with a coffee green border and tint. Full width below `lg`, compact on
+      the right of the header from `lg` up.

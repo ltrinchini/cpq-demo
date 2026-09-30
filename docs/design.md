@@ -103,7 +103,7 @@ Many visitors arrive from a shared link (LinkedIn, email) and open the demo on t
 
 ### Navigation
 
-The header and tabs (Configure, Quotes, Pricing settings) stay visible on mobile, with no hamburger menu: three choices fit in the width. On mobile, the tabs take the full width, in equal parts, with a 44 px minimum height (`min-h-11`); the third becomes "Settings" to fit at 360 px.
+The header and tabs (Configure, Quotes, Pricing settings) stay visible on mobile, with no hamburger menu: three choices fit in the width. The tabs are segmented buttons at every width, styled like the configurator's (Frost border, coffee green border and light tint on the active tab). On mobile, they take the full width, in equal parts, with a 44 px minimum height (`min-h-11`); the third becomes "Settings" to fit at 360 px. From `lg` up, they sit compact on the right of the header.
 
 ### Configurator (desktop)
 
