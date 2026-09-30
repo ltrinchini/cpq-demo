@@ -6,8 +6,9 @@
 - [x] 2. `Pricing settings`: one short explanatory sentence (`max-w-prose`,
       `text-sm text-slate`) at the top of each category panel, shown in both
       the desktop panel and the mobile accordion.
-- [ ] 3. Text/number inputs on a white background: `bg-surface` (existing
-      token) on `SettingsField`, the quantity field and the notes textarea.
+- [x] 3. Form fields on a white background: `bg-surface` (existing token)
+      instead of `bg-transparent` in the shared `Input`, `Textarea` and
+      `SelectTrigger`, so every field matches.
 - [ ] 4. `Pricing setting` inputs: the input width no longer depends on the
       unit suffix length (fixed-width unit column, so inputs and units align
       within a panel).
