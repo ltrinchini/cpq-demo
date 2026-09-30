@@ -23,11 +23,10 @@ services:
       retries: 5
 
   # Applies pending migrations, then serves the application (Dockerfile).
+  # Publishes no port: it is only reachable through `tunnel`.
   app:
     <<: *app-build
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -56,6 +55,20 @@ services:
           npm run db:purge
           sleep 86400
         done
+
+  # Exposes `app` publicly over HTTPS through a Cloudflare Tunnel, with an
+  # outbound connection only: the host opens no inbound port. The tunnel's
+  # public hostname is configured in the Cloudflare dashboard and must point
+  # to `http://app:3000`.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?}
+    depends_on:
+      app:
+        condition: service_healthy
 
 volumes:
   db-data:
